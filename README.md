@@ -55,6 +55,36 @@ git init
 git branch -M main
 git add .
 git commit -m "Initial commit"
-git remote add origin https://github.com/<username>/<repo>.git
+git remote add origin https://github.com/rishabhahuja12/Amazon_Sentiment_Analysis.git
 git push -u origin main
+```
+
+## Clone Repository (New Machine)
+
+Use these exact commands:
+
+```bash
+git clone https://github.com/rishabhahuja12/Amazon_Sentiment_Analysis.git
+cd Amazon_Sentiment_Analysis
+python -m venv .venv
+source .venv/bin/activate   # macOS/Linux
+# .venv\Scripts\activate    # Windows PowerShell
+pip install --upgrade pip
+pip install -r requirements.txt
+python api/app.py
+```
+
+## Pull Latest Changes (Existing Local Copy)
+
+If you already have the project locally:
+
+```bash
+cd Amazon_Sentiment_Analysis
+git pull origin main
+```
+
+If dependency versions changed after pulling:
+
+```bash
+pip install -r requirements.txt
 ```
