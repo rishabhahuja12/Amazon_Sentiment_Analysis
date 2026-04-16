@@ -1,0 +1,1589 @@
+PAGES=17
+
+===== PAGE 1 =====
+An explainable ensemble machine learning approach for multi-domain, 
+multiclass sentiment analysis in Amazon product reviews
+Kamogelo Mokgwatjane, Thulane Paepae
+*
+Department of Mathematics and Applied Mathematics, University of Johannesburg, PO Box 524, Doornfontein 2028, South Africa
+ARTICLE INFO
+Keywords:
+Sentiment analysis
+Machine learning
+Ensemble learning
+Explainability
+Amazon product reviews
+ABSTRACT
+Sentiment analysis (SA) of online reviews is pivotal for e-commerce platforms yet challenges such as massive 
+user-generated content volumes and class imbalances hinder accurate multiclass predictions and model inter -
+pretability. This study introduces a novel explainable ensemble learning framework for multiclass SA (positive, 
+neutral, negative) across three Amazon product domains: appliances, groceries, and clothing. The framework 
+integrates diverse supervised classifiers in a stacking ensemble, with SHapley Additive exPlanations (SHAP) 
+innovatively employed not only to elucidate feature contributions but also to rank and interpret the individual 
+impacts of base classifiers on ensemble predictions, a pioneering application in domain-specific SA, as it enables 
+global insights into model dynamics and base model selection, addressing gaps in prior studies that relied on 
+local explanations like LIME (Local Interpretable Model-agnostic Explanations). Evaluated using imbalance- 
+sensitive metrics (weighted/macro F1-score, Matthews Correlation Coefficient, Cohen ’ s Kappa, Geometric 
+Mean), the ensemble surpasses individual classifiers and demonstrates higher macro F1 and G-Mean than the 
+transformer-based ALBERT model, while ALBERT excels in weighted F1, MCC, and Cohen's Kappa. Extra Trees 
+notably excelled in the G-Mean for minority classes. SHAP analysis uncovers domain-specific drivers and base 
+model roles, enhancing transparency. The results underscore the framework ’ s efficacy in delivering robust 
+performance and actionable insights for trust modelling, automated analytics, and personalized recommenda -
+tions. This work lays the groundwork for extensions to low-resource domains, multimodal data, and finer rating 
+scales, advancing interpretable SA in e-commerce.
+1. Introduction
+In the rapidly evolving digital landscape, online shopping has gained 
+significant traction in recent years due to increased internet penetration 
+and advancements in mobile technologies ( Shetty et al., 2024 ). As a 
+result, customers frequently share their experiences through online 
+product reviews, contributing to a massive volume of user-generated 
+reviews ( Hashmi & Yayilgan, 2024 ). Analyzing these reviews can aid 
+businesses align offerings with expectations, identify market advan -
+tages, and improve products by understanding customer needs and pain 
+points ( Ray et al., 2024 ). However, the overwhelming volume of such 
+reviews presents a significant challenge for manual analysis, which is 
+often inefficient and inconsistent ( Maruthuperumal, 2025 ). Thus, 
+e-commerce platforms have increasingly adopted Artificial Intelligence 
+(AI) solutions to efficiently process large datasets, categorize feedback, 
+and uncover trends for strategic decision-making ( Nnanna-Ohuonu, 
+2025 ).
+In particular, Sentiment Analysis (SA), a branch of Natural Language 
+Processing (NLP), is widely used to interpret customer sentiments from 
+large volumes of textual data ( Gupta et al., 2021 ). By incorporating SA 
+into customer feedback analysis processes, manufacturers can perform 
+the transformation of qualitative data into quantitative, measurable 
+results for seamless identification of prevailing sentiment patterns and 
+underlying causes driving consumer opinions ( Mara et al., 2025 ). 
+Compared to manual methods, automated sentiment classification offers 
+efficiency and consistency while reducing human bias in interpretation 
+( Rana et al., 2022 ). However, despite recent progress, SA systems face 
+key limitations, especially in the areas of sentiment granularity, domain 
+adaptability, and model transparency.
+Most existing studies primarily focus on binary sentiment classifi -
+cation (positive, negative), often overlooking the nuanced nature of 
+multiclass sentiment (positive, neutral, negative) ( Liu, 2022 ). However, 
+customer feedback often isn ’ t strictly positive or negative. For instance, 
+neutral sentiments (e.g., the shirt fits fine, but the color is average) are 
+* Corresponding author.
+E-mail address: tpaepae@uj.ac.za (T. Paepae). 
+Contents lists available at ScienceDirect
+Machine Learning with Applications
+journal homepag e: www.el sevier.com/loc ate/mlwa
+https://doi.org/10.1016/j.mlwa.2025.100825
+Received 28 August 2025; Received in revised form 7 December 2025; Accepted 20 December 2025  
+Machine Learning with Applications 23 (2026) 100825 
+Available online 20 December 2025 
+2666-8270/© 2025 The Author(s). Published by Elsevier Ltd. This is an open access article under the CC BY-NC-ND license ( http://creativecommons.org/licenses/by- 
+nc-nd/4.0/ ). 
+
+===== PAGE 2 =====
+common and provide valuable insights into areas that neither delight 
+nor upset customers ( Pang & Lee, 2009 ). Therefore, capturing these 
+nuances enables better product improvements, customer service prior -
+itization, and targeted marketing by identifying not just polarized 
+opinions but also ambivalent or neutral feedback. Moreover, the com -
+plexities of sentiment expression vary across different product cate -
+gories. For instance, (i) appliances sentiment might focus on 
+functionality, durability, or technical features (e.g., the blender is 
+powerful but noisy), (ii) groceries sentiment often revolves around taste, 
+freshness, or packaging (e.g., the apples were fresh, but the packaging 
+was excessive), while (iii) clothing sentiment may emphasize fit, style, 
+or material quality (e.g., the jacket looks stylish but feels cheap). Thus, a 
+one-size-fits-all model would struggle to account for these 
+domain-specific nuances. Furthermore, while modern machine learning 
+(ML) classifiers, particularly traditional algorithms, offer high predictive 
+performance, their black-box nature often limits their adoption in do -
+mains where transparency, accountability, and trust are crucial ( Zhong 
+et al., 2022 ). Without understanding the reasoning behind a model’s 
+prediction, it is difficult to trust its outputs or to diagnose and rectify its 
+failures. This lack of explainability is a key gap in the current SA 
+research.
+To address these limitations, this study proposes an explainable 
+ensemble ML framework for multi-domain, multiclass SA in Amazon 
+product reviews. The study makes the following contributions: 
+1. It proposes a multi-domain, multiclass ensemble learning framework 
+for sentiment classification of Amazon product reviews, covering 
+appliances, groceries, and clothing.
+2. It incorporates explainable AI techniques, specifically SHapley Ad -
+ditive exPlanations (SHAP), not only to explain feature contributions 
+to predictions, but also to rank and interpret individual contributions 
+of base classifiers in the Stacking ensemble. To the best of our 
+knowledge, this is the first use of SHAP for an ensemble’s base 
+models ranking/interpretability in domain-specific sentiment 
+classification.
+3. It empirically demonstrates domain-specific variability in model 
+behavior, emphasizing the need for adaptable, interpretable models 
+across diverse product categories.
+Additionally, the proposed framework is benchmarked against a 
+state-of-the-art transformer model, A Light BERT (ALBERT), enabling a 
+rigorous comparison between traditional ensemble methods and mod -
+ern deep language models.
+The remainder of this paper is structured as follows: Section 2 pre -
+sents a review of related work on SA, ensemble ML, and explainability. 
+Section 3 describes the dataset and methodology, including the selected 
+classifiers and the SHAP explanation framework. Section 4 outlines 
+experimental results and model evaluations. Section 5 discusses findings 
+and implications. Finally, Section 6 concludes the study and outlines 
+directions for future research.
+2. Literature review and background
+2.1. Product domain and classification
+Existing studies on SA demonstrate considerable variation in their 
+selection of product domains and the granularity of sentiment classifi -
+cation, reflecting diverse research objectives and methodological ap -
+proaches. This heterogeneity underscores both the progress and 
+persistent limitations in the field, particularly regarding multi-domain, 
+multiclass frameworks and transparent data reporting. Lin (2020)
+focused on SA of women’s clothing reviews, employing a binary classi -
+fication scheme (recommended vs. not recommended. Similarly, Noor 
+and Islam (2019) and Shetty et al. (2024) examined Amazon women’s 
+clothing reviews, applying binary classification, with datasets contain -
+ing over 50,000 and 23,486 reviews, respectively.
+Gupta et al. (2021) expanded the scope by examining Amazon re -
+views across clothing, shoes, and jewelry, applying binary classification 
+with a dataset exceeding 700,000 reviews. The broader domain 
+coverage represented an advancement toward multi-domain SA; how -
+ever, the binary framework failed to address the nuanced sentiment 
+levels essential for comprehensive customer insights. Mahmud et al. 
+(2023) ventured into multiclass sentiment classification for women’s 
+clothing reviews, categorizing sentiments into multiple classes (e.g., 
+positive, neutral, negative). Despite this progress, the lack of specified 
+dataset details (e.g., source, size) impedes reproducibility and general -
+izability, highlighting a critical gap in transparent data reporting that 
+hinders cross-study validation.
+Hashmi and Yayilgan (2024) employed a hybrid approach with 
+product context-aware learning. They analyzed over 500,000 Amazon 
+reviews from diverse domains, including mobile electronics, security 
+software, personal care appliances, and major appliances. Utilizing 
+multiclass classification, the authors marked a step toward addressing 
+the limitations of binary, single-domain studies. Ray et al. (2024) carried 
+out a large-scale study with over 6 million Amazon reviews, focusing on 
+appliances and using a multiclass classification approach. The extensive 
+dataset size underscores the potential for robust multiclass SA, though 
+the lack of cross-domain analysis limits its scope.
+Radovilsky and Hegde (2024) explored grocery reviews from 
+Amazon, Walmart, and Instacart, applying binary classification to a 
+dataset of over 700,000 reviews. The multi-source approach enriched 
+data diversity, but the binary classification restricted the inclusion of 
+neutral sentiments, a key aspect of customer feedback. Along similar 
+lines, Rana et al. (2022) and Arnav et al. (2024) analyzed Amazon re -
+views on groceries using binary classification on large datasets (over 
+700,000 and 500,000 reviews).
+2.2. Ensemble machine learning techniques
+Ensemble models in ML combine multiple base learners or learning 
+processes to enhance predictive performance, robustness, and general -
+ization compared to individual models. By leveraging the strengths of 
+diverse models or iterative learning strategies, ensemble methods miti -
+gate weaknesses such as overfitting, bias, and variance, making them 
+particularly effective for complex tasks like multiclass sentiment anal -
+ysis. The primary ensemble strategies, bagging, boosting, and stacking, 
+employ distinct approaches to achieve these improvements, as follows: 
+1. Bagging reduces variance by training multiple base models inde -
+pendently on random subsets of the training data and aggregating 
+their predictions, typically via majority voting for classification. 
+Notable implementations include the Random Forest (RF) algorithm, 
+which combines multiple decision trees with feature randomness to 
+improve accuracy.
+2. Boosting sequentially trains base models, with each model focusing 
+on correcting the errors of its predecessors by assigning higher 
+weights to misclassified instances. Notable implementations include 
+XGBoost, LightGBM, and CatBoost, which offer high accuracy and 
+speed through optimizations like parallel processing and histogram- 
+based algorithms. The foundational algorithm is AdaBoost, which 
+adaptively assigns weights to misclassified samples.
+3. Stacking, also called stacked generalization, is an ensemble learning 
+technique that combines the predictions of multiple diverse base 
+models using a meta-learner to produce a final, optimized prediction. 
+This method aims to leverage the individual strengths of various 
+algorithms and reduce potential weaknesses or biases of any single 
+model.
+These ensemble strategies enhance predictive accuracy and robust -
+ness by addressing different aspects of model performance. For instance, 
+bagging stabilizes predictions, boosting refines accuracy through itera -
+tive learning, and stacking capitalizes on model diversity. Noor and 
+K. Mokgwatjane and T. Paepae                                                                                                                                                                                                              Machine Learning with Applications 23 (2026) 100825 
+2 
+
+===== PAGE 3 =====
+Islam (2019) investigated the use of AdaBoost to enhance the perfor -
+mance of Naïve Bayes, J48, and JRip for SA. Their approach included 
+boosting a Support Vector Machine (SVM) optimized via the sequential 
+minimal optimization algorithm, which achieved a notable accuracy of 
+80.88 %. Shetty et al. (2024) explored RF and AdaBoost to classify 
+sentiments in customer reviews. Their approach yielded an impressive 
+accuracy of 91 % and an F1-score of 95 %, highlighting the robustness of 
+ensemble techniques in capturing complex sentiment patterns. Arnav 
+et al. (2024) employed XGBoost, a gradient boosting framework, 
+achieving a high accuracy of 94 % and an F1-score of 91 %.
+Radovilsky and Hegde (2024) utilized RF for sentiment classification 
+but adopted non-traditional evaluation metrics, including mean, stan -
+dard deviation, and confidence intervals. This approach provided a more 
+comprehensive assessment of model performance, particularly in terms 
+of stability and reliability, diverging from standard metrics like accuracy 
+and F1-score. Lin (2020) conducted a comparative study of RF, XGBoost, 
+and LightGBM for SA. LightGBM emerged as the top performer, 
+achieving an outstanding accuracy of 98 % and an F1-score of 97 %. 
+Hashmi and Yayilgan (2024) evaluated multiple ensemble methods, 
+including RF, XGBoost, CatBoost, and a Stacking Ensemble, with a 
+particular focus on deep learning models within the stacking framework. 
+In their experiments on personal care appliances, CatBoost achieved the 
+highest performance with an accuracy and F1-score of 94 %. Across 
+other datasets, traditional models such as Logistic Regression (LR) and 
+SVM occasionally matched or surpassed the performance of these 
+ensemble methods, indicating the competitive nature of simpler models 
+in specific contexts.
+2.3. Explainable AI methods and applications
+The complexity of high-performing ML models, particularly 
+ensemble methods like RF, XGBoost, and stacking ensembles, often 
+renders their decision-making processes opaque, posing challenges for 
+understanding and trusting their predictions. In SA, where models must 
+accurately classify nuanced sentiments (positive, neutral, negative) 
+across diverse domains such as appliances, groceries, or clothing, this 
+lack of interpretability can hinder practical adoption. Explainable AI 
+(XAI) has emerged as a critical field to address this issue by developing 
+methods to enhance the transparency and interpretability of complex 
+ML models, thereby fostering trust and reliability in their decisions ( Tjoa 
+& Guan, 2020 ). While numerous SA studies, such as those by Noor and 
+Islam (2019) , Shetty et al. (2024) , Arnav et al. (2024) , Radovilsky and 
+Hegde (2024) , and Lin (2020) , leverage advanced ML and ensemble 
+models to achieve high accuracy (e.g., 98 % with LightGBM by Lin 
+(2020) , 94 % with CatBoost by Hashmi and Yayilgan (2024) ), they often 
+overlook explainability, which is a significant gap, as understanding the 
+underlying mechanisms driving model predictions is essential for vali -
+dating their reliability, identifying biases, and ensuring actionable in -
+sights for stakeholders, particularly in multiclass SA where neutral 
+sentiments add complexity.
+Two widely adopted, model-agnostic XAI techniques for interpreting 
+these models are LIME (Local Interpretable Model-agnostic Explana -
+tions) and SHAP ( Slack et al., 2020 ). LIME explains individual pre -
+dictions by approximating the complex model locally with a simpler, 
+interpretable model (e.g., linear regression) around the instance of in -
+terest. It perturbs the input data and observes how predictions change, 
+highlighting features (e.g., words in a review) that most influence the 
+outcome. In SA, LIME can reveal which keywords or phrases drive a 
+model to classify a review as positive, neutral, or negative. On the other 
+hand, SHAP leverages game theory to assign importance scores (Shapley 
+values) to each feature, quantifying its contribution to the model’s 
+prediction. Unlike LIME, SHAP provides both local (instance-specific) 
+and global (model-wide) explanations, offering a comprehensive view of 
+feature importance across datasets. Hashmi and Yayilgan (2024) applied 
+LIME to their FastXCatStack model, a stacking ensemble that integrated 
+ML models, including XGBoost and CatBoost, for SA of personal care 
+appliance reviews. LIME provided interpretable explanations for indi -
+vidual prediction outcomes, elucidating why specific reviews were 
+classified as positive, neutral, or negative.
+2.4. Synthesis and research gap
+While SA research has made significant strides in leveraging 
+ensemble models to classify customer opinions, several critical gaps 
+persist. These gaps, outlined below, underscore the need for more 
+comprehensive approaches that address multi-domain, multiclass 
+sentiment classification, robust ensemble model evaluation, and 
+enhanced model interpretability. 
+1. Limited focus on multi-domain, multiclass sentiment analysis 
+The studies reveal a spectrum of approaches, with dataset sizes 
+ranging from 23,486 to over 6 million reviews and domains spanning 
+clothing, groceries, appliances, and electronics. The shift toward 
+multiclass classification in Hashmi and Yayilgan (2024) , Ray et al. 
+(2024) , and Mahmud et al. (2023) addresses the gap in capturing 
+neutral sentiments, a critical need for holistic SA. However, the 
+majority of studies primarily focus on single-domain datasets or bi -
+nary sentiment classification, overlooking the nuanced nature of 
+multiclass sentiment across diverse product categories. For instance, 
+domains like appliances, groceries, and clothing exhibit distinct 
+linguistic patterns and sentiment indicators, which require tailored 
+models to capture domain-specific nuances. Thus, multi-domain, 
+multiclass SA remains largely underexplored, limiting insights into 
+customer feedback that spans everyday product categories and in -
+cludes neutral sentiments, which are critical for a holistic under -
+standing of user opinions.
+2. Inconsistent benefits of ensemble models 
+Ensemble models have demonstrated improved predictive per -
+formance in SA, with notable results from Hashmi, Ehtesham (2024) , 
+Lin (2020) , and Arnav et al. (2024) . However, the advantages of 
+ensemble methods like bagging and boosting over traditional 
+models, such as SVMs, are inconsistently reported. For instance, 
+Hashmi and Yayilgan (2024) found that classical models occasion -
+ally matched or outperformed ensembles in certain datasets. 
+Furthermore, advanced techniques such as stacking combined with 
+classical ML models have received limited attention. Effectively 
+developed, these methods can enhance model robustness across do -
+mains, yet their efficacy in multi-domain SA remains understudied, 
+leaving a gap in understanding how to optimally integrate diverse 
+models for improved generalization.
+3. Insufficient focus on model interpretability 
+The interpretability of ensembles is frequently overlooked in SA 
+research, despite the critical need to understand decision-making 
+processes to ensure reliability and trust. While local explanation 
+techniques like LIME provide insights into individual predictions, 
+they rarely offer a global perspective on overall model behavior or 
+the contributions of base models within ensembles. Techniques like 
+SHAP, which provide both local and global interpretability by 
+quantifying feature contributions, remain underexplored in SA. This 
+gap limits the ability to comprehensively understand model dy -
+namics, identify biases, and refine ensemble models for multi- 
+domain, multiclass tasks.
+2.5. Significance and novelty
+To address these gaps, particularly the limited focus on multi- 
+domain, multiclass classification and the lack of comprehensive inter -
+pretability for complex ensemble models, this study proposes a novel 
+application of SHAP in the context of a stacking ensemble for domain- 
+specific sentiment classification. Specifically, our approach leverages 
+SHAP to achieve two objectives: (1) to explain the contributions of in -
+dividual features (e.g., keywords, phrases) to sentiment predictions 
+K. Mokgwatjane and T. Paepae                                                                                                                                                                                                              Machine Learning with Applications 23 (2026) 100825 
+3 
+
+===== PAGE 4 =====
+across domains such as appliances, groceries, and clothing, and (2) to 
+rank and interpret the contributions of base classifiers within the 
+stacking ensemble. This dual application of SHAP addresses critical gaps 
+in SA research. First, it enhances interpretability in multi-domain, 
+multiclass SA by providing detailed explanations of feature contribu -
+tions, building on the limited use of XAI in prior studies such as Hashmi 
+and Yayilgan (2024) . Second, by ranking and interpreting base classifier 
+contributions, it offers a pioneering approach to understanding the in -
+ternal dynamics of stacking ensembles, which have been underexplored 
+in SA despite their potential for generalization. To our knowledge, no 
+prior study has applied SHAP to both feature-level and base model-level 
+interpretability in a stacking ensemble for domain-specific sentiment 
+classification, marking a significant advancement in the field.
+3. Methodology
+To address the research objectives, a methodology framework was 
+adopted. Fig. 1 presents an overview of the key steps followed in this 
+study, including data collection, preprocessing, modeling, performance 
+evaluation and comparison, ensemble base model ranking, and 
+explainability.
+3.1. Data collection and description
+The study uses the 2023 McAuley Lab Amazon Reviews release, 
+including Appliances, Groceries & Gourmet Food, and Clothing, Shoes & 
+jewelry categories, obtained from the University of California, San Diego 
+(UCSD) ( Hou et al., 2024 ). The datasets were retrieved in JSON format 
+(retrieved March 2025) and contain over one million product reviews 
+each. Each dataset includes 11 fields: rating, title, text, images, asin, 
+parent_asin, user_id, timestamp, helpful_vote, and verified_purchase, 
+with reviews spanning from the early 2000s to 2023.
+3.2. Preprocessing pipeline
+Naturally, sentiment datasets contain noisy and unstructured user 
+reviews. Data preprocessing is crucial for ensuring data quality and 
+consistency before the modeling phase. In our case, the initial phase 
+involved standard data cleaning operations, including converting all 
+texts to lowercase, the removal of duplicate entries, handling missing 
+values, stripping HTML tags (with BeautifulSoup4 v4.12.3 ), and elimi -
+nating special characters and numbers. Non-English reviews were 
+filtered out using the Langdetect library v1.0.9 , retaining only reviews 
+with predicted 'en' language. To retain only relevant and recent data, 
+reviews older than 10 years were excluded, keeping records from 2013 
+to 2023. Emojis were converted into text to preserve the original 
+emotional tone of user feedback using the Emoji library v2.14.1 . Com -
+mon contraction words were also expanded (e.g., “ don ’ t ” to “ do not ” ), as 
+they often carry sentiment cues and can lead to misinterpretation of 
+sentiments if not properly handled.
+Further preprocessing included tokenization with Spacy en_cor -
+e_web_sm v3.8.2 , removing stop words to eliminate frequently occurring 
+but semantically weak terms. However, negation words such as “ not, ” 
+“ no, ” and “ never ” were carefully retained to avoid sentiment distortion. 
+Fig. 1. Workflow of the proposed framework with stacking ensemble and SHAP explainability.
+K. Mokgwatjane and T. Paepae                                                                                                                                                                                                              Machine Learning with Applications 23 (2026) 100825 
+4 
+
+===== PAGE 5 =====
+For instance, removing “ not ” from “ I do not like this product ” would 
+incorrectly flip the sentiment to “ I do like this product. ” Lemmatization 
+was then used to reduce words to their base forms, promoting consis -
+tency while minimizing the feature space (e.g., “ running ” to “ run ” ). 
+Lastly, the data was labeled for supervised learning. Based on a 1 to 5- 
+star review rating system, this study treated 1 and 2 as negative, 3 as 
+neutral, and 4 and 5 as positive. From these, the negative, neutral, and 
+positive were mapped to classes 0, 1, and 2, respectively. Fig. 2 illus -
+trates the product rating distributions across all domains.
+3.3. Feature engineering
+Feature engineering was employed to enhance model performance 
+by extracting and transforming relevant features from the original var -
+iables. In addition to TF-IDF, we experimented with modern embeddings 
+using Sentence-BERT ( v3.0.1 ), including the MPNet and All-MiniLM-L6 
+variants, across all domains. Despite their theoretical advantages in 
+capturing semantic nuances, TF-IDF consistently achieved higher per -
+formance in our datasets, likely due to domain-specific sparsity and the 
+nature of Amazon reviews. Therefore, TF-IDF remains the primary 
+feature representation in this study. We applied a combination of 
+unigrams and bigrams. Using n-grams, especially bigrams, ensures that 
+negation patterns such as “ not good ” , “ never buy ” , “ no value ” , etc., are 
+correctly captured. For dimensionality reduction and faster model 
+training, a selection of 100,000 maximum features was chosen, ensuring 
+that only the top 100,000 most important terms are prioritized.
+Term Frequency-Inverse Document Frequency (TF-IDF) - As 
+outlined by Dhammananda et al. (2023) , TF-IDF is a statistical measure 
+that assesses the relevance of tokens in a document or a collection of 
+documents. It assigns a weight to each document token based on its 
+frequency of appearance in the document. Using this method offers 
+several advantages, such as resolving token frequency issues, token 
+importance representation, and seamless computation. Term frequency 
+is the number of repetitive tokens in a single document divided by the 
+total number of tokens in that document. Inverse document frequency is 
+the logarithm of the total number of documents in the dataset divided by 
+the number of documents containing that token. This can be represented 
+by Eq. (1) : 
+TF  IDF ( t , d ) = TF ( t , d ) × IDF ( t ) (1) 
+where: 
+TF ( t , d ) =
+f
+t , d
+∑
+t
+ʹ f
+t
+ʹ
+, d 
+IDF ( t ) = log
+N
+1 + n
+t 
+3.4. Experimental setup
+All experiments were conducted on a local machine running Ubuntu 
+Linux operating system, equipped with an Intel Core i5 processor, 32GB 
+RAM, and an Intel Iris Xe Graphics GPU, running Python 3.12 in a Conda 
+environment. Key libraries used include Numpy ( v2.2.2 ), Pandas 
+( v2.2.3 ) for data manipulation and preprocessing, Matplotlib ( 3.10.0 ) 
+and Seaborn ( 0.13.2 ) for visualization, Scikit-learn ( v1.6.1 ), XGBoost 
+( v2.1.4 ), and LightGBM ( v4.5.0 ) model training, and SHAP ( v0.47.2 ) for 
+model explainability. For initial model benchmarking, the LazyPredict 
+( v0.2.13 ) library was used to evaluate the performance of a wide range 
+of ML models. This process was performed on a 20,000-record subset in 
+each domain. The top 10 performing models were selected for further 
+cross-validation and model training. A fixed random seed of 42 was used 
+throughout the entire pipeline to ensure reproducibility.
+Each domain consisted of 100,000 records, which were sampled 
+through stratified sampling without replacement from larger raw data -
+sets to help preserve class distribution. The data was split into 80 % and 
+20 % for model training and testing. Five-fold cross-validation was 
+performed on each domain model set, which were then used as stacking 
+ensemble base models. All experiments were conducted on an imbal -
+anced multiclass dataset (negative, neutral, and positive).
+3.5. Stacking ensemble learning
+Ensemble learning combines multiple classifiers to improve predic -
+tion accuracy. Stacking involves training diverse base learners on the 
+full dataset, then using their predicted probabilities as input features for 
+a meta-model. This approach leverages the complementary strengths of 
+heterogeneous base models, often resulting in better performance than 
+any individual classifier ( Rani & Gill, 2020 ). Fig. 3 illustrates the ar -
+chitecture of the stacking model.
+Multiple individual models (also known as base learners or Level-1 
+models) generate predictions on a held-out validation data or using 
+cross-validation. This is crucial to prevent data leakage and ensure the 
+meta-motel learns from out-of-sample predictions. The predictions are 
+then used as training data for the meta-model (also known as Level-2 
+models or meta-learner). The meta-model learns how to optimally 
+combine the predictions of base models to produce a final prediction. 
+The meta-model can be any type of ML algorithm, such as a linear 
+model, a tree-based model, or even another ensemble. The selection of 
+the most effective domain-specific meta-model for this study is discussed 
+in Section 4 .
+3.6. Datasets class distribution and performance evaluation metrics
+Imbalanced sentiment classification is commonly recognized as a 
+challenging task in ML, as models often fail to capture underrepresented 
+classes adequately and tend to classify most samples into the majority 
+Fig. 2. Product ratings distribution across the three domains.
+K. Mokgwatjane and T. Paepae                                                                                                                                                                                                              Machine Learning with Applications 23 (2026) 100825 
+5 
+
+===== PAGE 6 =====
+class ( Li et al., 2011 ). A dataset is considered imbalanced when one or 
+more classes have substantially fewer samples than the remaining 
+classes ( Bekkar et al., 2013 ). The datasets employed in this study, as 
+illustrated in Fig. 4 , exhibit a pronounced imbalanced class distribution. 
+Rather than applying oversampling techniques like the synthetic mi -
+nority oversampling technique, which generates synthetic data points, 
+or undersampling methods that discard samples from majority classes, 
+this study opts to preserve the original class distribution. This decision 
+prioritizes the authenticity of user-generated content, as synthetic pat -
+terns introduced by oversampling may not genuinely represent the mi -
+nority class, and models trained on such artificially generated data can 
+perform poorly when applied to real-world scenarios ( Hassanat et al., 
+2022 ). Undersampling, conversely, risks losing valuable majority-class 
+information, potentially skewing model training. Thus, preserving the 
+natural imbalance ensures that the testing process reflects real-world 
+data distributions, thereby enabling a rigorous evaluation of the 
+model's ability to generalize across different sentiment classes ( Suhaeni 
+& Yong, 2024 ). However, to ensure a fair recognition of all classes, we 
+incorporated a cost-sensitive learning approach, which adjusts 
+misclassification penalties to improve the model's sensitivity to minority 
+classes.
+As shown in Fig. 4 , our datasets contain a higher proportion of 
+positive reviews compared to negative and neutral ones. This imbalance 
+necessitates careful selection of evaluation metrics, as conventional 
+measures such as accuracy may not adequately reflect performance on 
+the minority classes, potentially leading to misleading model assessment 
+( Wegier & Ksieniewicz, 2020 ). To ensure a fair assessment across all 
+classes, the following evaluation metrics are employed.
+3.6.1. Weighted F1-score
+This weighted harmonic mean of precision and recall offers a deeper 
+understanding of a classifier ’ s performance than accuracy, making it 
+especially useful for evaluating models on imbalanced text classification 
+tasks. It is zero if either precision or recall is zero, and increases as both 
+precision and recall improve. A high value indicates a better model 
+performance ( Bekkar et al., 2013 ). Weighted F-measure is represented 
+by Eq. (2) , where K is the total number of classes. 
+F 1
+weighted
+=
+∑
+K
+i = 1
+(
+N
+i
+N
+× F 1
+i
+)
+(2) 
+Fig. 3. Stacking model architecture.
+Fig. 4. Class distribution across the three domains.
+K. Mokgwatjane and T. Paepae                                                                                                                                                                                                              Machine Learning with Applications 23 (2026) 100825 
+6 
+
+===== PAGE 7 =====
+3.6.2. Macro F1-score
+Computes the F-measure independently for each class and then takes 
+a simple average, giving equal importance to all classes regardless of 
+their sample size ( Bacevicius & Paulauskaite-Taraseviciene, 2023 ). 
+Weighted macro F-measure is represented by Eq. (3) . 
+F 1
+macro
+=
+1
+K
+∑
+K
+i = 1
+F 1
+i
+(3) 
+3.6.3. Matthews correlation coefficient (MCC) and Cohen's Kappa score
+MCC is regarded as a comprehensive metric, particularly effective for 
+evaluating models on an imbalanced dataset. Its value ranges from 
+positive one, indicating perfect predictions, to negative one, represent -
+ing completely incorrect predictions. A value near zero suggests the 
+model ’ s performance is comparable to random performance ( Bekkar 
+et al., 2013 ). While included among our evaluation metrics for 
+completeness, Cohen's Kappa has known limitations in handling 
+imbalanced multiclass datasets. This metric measures the agreement 
+between two raters, and in ML, it evaluates how well a classifier ’ s pre -
+dictions agree with the true labels beyond what would be expected by 
+chance. When comparing threshold-based metrics, MCC and Cohen's 
+Kappa often produce similar outcomes; however, Kappa tends to show 
+undesirable behaviour with imbalanced data, making MCC the preferred 
+choice in such scenarios ( Gaudreault & Branco, 2024 ). MCC and Kappa 
+scores are represented by Eqs. (4) and 5 , respectively, where:
+N : Total number of classes (sum of all cells in the confusion matrix)
+P : Total number of correctly classified samples =
+∑
+K
+k = 1
+C
+kk
+P
+k
+: Total number of actual instances for class k =
+∑
+K
+i = 1
+C
+ki
+T
+k
+: Total number of predicted instances of class k =
+∑
+K
+i
+C
+ik
+p
+0
+: Observed agreement =
+P
+N
+p
+e
+: Expected agreement =
+1
+N
+2
+∑
+K
+k = 1
+P
+k
+⋅ T
+k 
+MCC =
+N ⋅ P 
+∑
+K
+k = 1
+P
+k
+⋅ T
+k
+̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅ ̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅ ̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅̅ ̅
+
+N
+2
+
+∑
+K
+k = 1
+P
+2
+k
+)
+N
+2
+
+∑
+K
+k
+T
+2
+k
+)
+√ (4) 
+k =
+p
+o
+ p
+e
+1  p
+e
+(5) 
+3.6.4. Geometric mean (G-Mean)
+Treats all classes with equal importance, regardless of how 
+frequently they appear in the data ( Gaudreault & Branco, 2024 ). It re -
+flects how well a model balances classification performance between 
+majority and minority classes; poor prediction of the minority class re -
+sults in a low G-Mean, even if the majority class is classified correctly 
+( Bekkar et al., 2013 ). This is represented by Eq. (6) , where K is still the 
+total number of classes. 
+G  mean =
+(
+∏
+K
+i = 1
+Recall
+i
+)
+1
+K
+(6) 
+3.6.5. Confusion matrix
+Provides a detailed summary of prediction results by showing the 
+counts of true positives, true negatives, false positives, and false nega -
+tives for each class. This study uses the normalized confusion matrix, 
+which expresses these counts as percentages relative to the true class 
+size. This normalization ensures fairer comparison across classes by 
+accounting for class imbalance, providing clearer insight into model 
+performance per class. Given the class imbalances, a normalized 
+confusion matrix is an effective technique for summarizing the perfor -
+mance of a classification model ( Usmani & Shamsi, 2020 ).
+3.7. Explainable ensemble learning framework
+Zhong et al. (2022) highlight several issues associated with the lack 
+of explainability in ML models, noting that models with high predictive 
+accuracy are often more difficult to explain. Thus, the lack of explain -
+ability limits the use of such models in scientific tasks, including 
+uncovering hidden causal relationships, acquiring useful knowledge, 
+and developing scientific hypotheses, leading to skepticism due to their 
+black-box nature ( Ngwenya et al., 2025a , 2025b ). This issue of 
+non-explainability extends to SA, particularly in multi-domain studies 
+like ours, where understanding why a model predicts a given sentiment 
+is critical for identifying domain-specific features that drive accurate 
+sentiment prediction, foster trust, and support actionable insights. SHAP 
+is a model-agnostic, post-hoc explainability technique that can be used 
+with any type of ML algorithm, built on game theory, which works by 
+calculating the contribution (Shapley value) of each feature (player) to 
+the model ’ s final prediction (payout) ( Salih et al., 2025 ). Introduced by 
+Lundberg and Lee (2017) , SHAP values provide a unified measure of 
+feature importance by quantifying how much each feature changes a 
+model ’ s prediction compared to the average prediction the model would 
+make if it did not know any of the features. To better understand how 
+SHAP values are calculated, the formal mathematical definition is rep -
+resented by Eq. (7) : 
+ϕ
+i
+=
+∑
+S ⊆ F \{ i }
+| S | ! ( M  | S |  1 ) !
+M !
+[
+f
+S ∪{ i }
+( x
+S ∪{ i }
+)  f
+S
+( x
+S
+)
+]
+(7) 
+where S is a subset of features not containing feature i, f
+S
+(x
+S
+) is the 
+model ’ s prediction when only the features in subset S are used (with 
+other features averaged out or set to baseline values), |S| is the size of the 
+subset S , and M! denotes the factorial of M. This formula averages the 
+marginal contributions of feature i over all possible subsets of features, 
+ensuring a fair distribution of the total prediction difference.
+A key innovation of our explainability framework is its application 
+not only at the feature level but also at the model level. While standard 
+SHAP analysis tells us which words were influential in driving a model ’ s 
+prediction, we extend its use to determine which base models were most 
+influential in the stacked ensemble ’ s final prediction. This analysis treats 
+the meta-learner as the model to be explained. The features for this met- 
+learner are the probabilistic prediction outputs from each of the base 
+models. By calculating SHAP values for these inputs, we can quantify the 
+precise contribution of each base model to any given prediction.
+4. Experimental results and analysis
+The following sections report experimental results and analysis 
+across the three domains, comparing ten baseline classifiers and two 
+stacking ensembles. Central to the evaluation is SHAP-based ranking of 
+base models, which guides ensemble construction and enhances inter -
+pretability. LR, the most widely adopted meta-learner in stacking en -
+sembles for imbalanced classification tasks ( Zian et al., 2021 ), was 
+employed across all domains, having demonstrated higher performance 
+Table 1 
+Comparison of model performance for the appliances domain.
+Model Weighted F1- 
+score
+Macro F1- 
+score
+MCC Kappa 
+Score
+G- 
+Mean
+DT 80.788 54.897 0.437 0.437 0.468
+ET 81.360 60.314 0.526 0.497 0.676
+RF 82.022 60.090 0.533 0.512 0.635
+BNB 83.634 59.887 0.517 0.516 0.557
+LGBM 84.877 62.678 0.575 0.564 0.635
+LinearSVC 86.340 63.137 0.605 0.603 0.568
+Bagging 86.366 64.600 0.612 0.607 0.624
+XGB 86.492 59.756 0.619 0.606 0.373
+SGD 86.762 62.841 0.611 0.608 0.498
+LR 86.931 64.611 0.612 0.610 0.606
+StackSHAP 87.627 66.370 0.640 0.637 0.637
+StackFull 87.650 66.533 0.641 0.638 0.639
+ALBERT 89.275 65.109 0.702 0.699 0.483
+K. Mokgwatjane and T. Paepae                                                                                                                                                                                                              Machine Learning with Applications 23 (2026) 100825 
+7 
+
+===== PAGE 8 =====
+in this role compared to other top-performing base models (See 
+Tables 1–3 ). Notably, it also appeared among the base learners, where it 
+operated directly on input features, while as the meta-model it was 
+trained on probability outputs from all base models, allowing it to 
+effectively integrate diverse decision patterns. Performance is evaluated 
+using class-sensitive metrics, and statistical validation is applied to 
+determine whether the observed differences in models' performance are 
+statistically significant.
+4.1. Model benchmarking and selection
+To identify the top-performing baseline classifiers for further cross- 
+validation and training, the LazyPredict library was employed. Lazy -
+Predict streamlines the training and evaluation of multiple ML models, 
+providing an easy-to-use interface for rapid benchmarking without 
+writing extensive code. This makes it particularly suitable for explor -
+atory analysis and initial model selection before cross-validation 
+( Sasongko et al., 2024 ). Fig. 5 presents the top ten performing models 
+selected through this benchmarking process across the three domains, 
+providing a foundation for the development of two stacking ensembles 
+(full and SHAP-guided stacking variants).
+In addition to classical ML baselines, the ensemble framework is also 
+evaluated against ALBERT (version 1), a strong SOTA transformer-based 
+model. ALBERT was developed by Google Research as a BERT variant to 
+reduce model complexity and computational demands while preserving 
+strong natural-language understanding performance ( Paramartha & 
+Maharani, 2025 ). Its efficiency and competitive performance make it a 
+suitable reference point for evaluating whether traditional ensembles 
+can rival transformer-based approaches, particularly in class-imbalance 
+settings.
+4.2. Performance comparison
+4.2.1. Tubular metric comparison
+Tables 1 , 2 , and 3 present the classification performance metrics for 
+all base models and the two ensemble variants: StackFull, which in -
+cludes ten base models, and StackSHAP, a reduced ensemble selected 
+based on SHAP values (further discussed in Section 4.3 ) comprising four 
+base models for the appliances, six for groceries, and six for clothing 
+domains. While the models were trained and validated using stratified 
+cross-validation, the results presented reflect evaluation on the held-out 
+test set.
+StackFull and StackSHAP are the strongest performers among the 
+traditional models, achieving the highest weighted F1-score (87.650 and 
+87.627, respectively) and demonstrating consistently strong MCC and 
+Kappa values. Their high weighted F1-scores reflect robust overall pre -
+dictive accuracy, while the macro F1-scores indicate weaker perfor -
+mance on minority classes. These trends align with prior findings that 
+lower macro F1-scores often signal difficulty in capturing 
+underrepresented classes ( Damirova, 2025 ), which is also reflected in 
+the confusion matrix analysis in Section 4.2.2 . Among all models, AL -
+BERT achieves the best weighted F1-score (89.275) and the highest MCC 
+(0.702) and Kappa score (0.699), confirming its strength as a SOTA 
+transformer benchmark. However, its macro F1-score and G-Mean 
+indicate less balanced sensitivity across classes compared to StackFull 
+and StackSHAP. As noted in earlier empirical work, metrics such as MCC 
+and Kappa serve as reliable indicators of prediction-ground truth con -
+sistency beyond chance ( Gaudreault & Branco, 2024 ). While traditional 
+baselines, such as LR, SGD, XGB, Bagging, and LinearSVC, remain 
+competitive, ET records the highest G-Mean, suggesting a superior bal -
+ance of sensitivity across classes. This aligns with interpretations that 
+higher G-Mean values reflect better minority-class recognition and 
+sharply penalize weak performance in underrepresented categories 
+( Deng et al., 2022 ).
+In the groceries domain, StackFull achieves the strongest overall 
+performance, posting the highest weighted F1-scores and macro F1- 
+score, with StackSHAP close behind. This demonstrates the consistent 
+advantage of ensemble strategies in capturing both dominant and mi -
+nority classes. ALBERT further extends this lead in terms of agreement- 
+based metrics, recording the highest MCC and Kappa scores, which 
+reflect its superior capacity to model nuanced class boundaries, while 
+being outperformed by StackFull and StackSHAP in macro F1-score and 
+G-Mean. Among the traditional classifiers, LR, SGD, Bagging, and XGB 
+appear as solid baselines, showing competitive weighted and macro F1- 
+scores. LGBM delivers the highest G-Mean, indicating the most balanced 
+class-level performance across all models, despite not matching the 
+ensembles or ALBERT on weighted F1-score and the agreement-centric 
+metrics.
+Across the clothing domain, both StackFull and StackSHAP deliver 
+the strongest overall performance, particularly StackSHAP, achieving 
+the highest weighted and macro F1-scores, confirming the ensembles' 
+capability to capture patterns across both minority and minority classes. 
+ALBERT maintains the highest MCC and Kappa scores, which un -
+derscores its superior agreement with true labels and its effectiveness at 
+modelling fine-grained distinctions within the domain. Among the base 
+models, LR remains competitive, offering consistently strong weighted 
+and macro F1-scores. ET attains the highest G-Mean, demonstrating the 
+best-balanced class-level performance among all the models, even 
+though its agreement-based metrics fall short of the top-performing 
+ensembles and ALBERT.
+Across all domains, StackFull and StackSHAP consistently outper -
+form the individual classifiers in overall performance (weighted F1) and 
+reliability (MCC and Kappa score), with only negligible differences be -
+tween the two ensembles. Their strong and stable results reinforce the 
+core principle of stacked generalization, where combining diverse 
+learners through a meta-model enhances generalization beyond what 
+standalone models can achieve ( Wolpert, 1992 ). Macro F1 and G-Mean 
+continue to reveal the same pattern observed in the confusion matrices: 
+Table 2 
+Comparison of model performance for the groceries domain.
+Model Weighted F1- 
+score
+Macro F1- 
+score
+MCC Kappa 
+Score
+G- 
+Mean
+DT 78.609 55.461 0.455 0.454 0.469
+ET 82.872 63.977 0.579 0.570 0.652
+RF 83.397 64.344 0.591 0.585 0.634
+LGBM 84.007 65.014 0.599 0.592 0.655
+LinearSVC 84.624 64.285 0.610 0.609 0.589
+BNB 84.644 65.382 0.605 0.604 0.624
+XGB 85.079 62.255 0.638 0.628 0.439
+Bagging 85.297 66.331 0.629 0.626 0.633
+SGD 85.323 64.949 0.630 0.626 0.531
+LR 85.450 65.833 0.627 0.626 0.612
+StackSHAP 86.082 67.439 0.648 0.646 0.639
+StackFull 86.200 67.695 0.649 0.647 0.645
+ALBERT 87.699 67.187 0.704 0.701 0.542
+Table 3 
+Comparison of model performance for the clothing domain.
+Model Weighted F1- 
+score
+Macro F1- 
+score
+MCC Kappa 
+Score
+G- 
+Mean
+DT 77.369 54.752 0.410 0.409 0.487
+ET 80.858 63.483 0.533 0.518 0.671
+RF 81.591 64.305 0.544 0.533 0.668
+BNB 82.210 63.477 0.543 0.538 0.625
+LGBM 82.473 64.621 0.557 0.548 0.660
+LinearSVC 82.634 63.070 0.549 0.548 0.602
+XGB 83.299 61.359 0.575 0.563 0.460
+Bagging 83.661 65.826 0.580 0.577 0.651
+SGD 83.921 64.348 0.577 0.573 0.549
+LR 84.053 65.491 0.581 0.580 0.618
+StackFull 84.606 67.066 0.602 0.599 0.652
+StackSHAP 84.608 67.116 0.602 0.600 0.654
+ALBERT 85.815 65.665 0.643 0.640 0.546
+K. Mokgwatjane and T. Paepae                                                                                                                                                                                                              Machine Learning with Applications 23 (2026) 100825 
+8 
+
+===== PAGE 9 =====
+strong majority-class performance coupled with persistent challenge in 
+the minority classes. Logistic Regression, Stochastic Gradient Descent, 
+and Bagging consistently emerge as the most competitive classical 
+models across domains, while Extra Trees occasionally achieve the 
+highest G-Mean, reflecting strong class-level balance. ALBERT provides 
+a powerful transformer-based benchmark, underscoring its robust 
+agreement with true labels. StackSHAP performs slightly better in the 
+clothing domain, whereas StackFull holds a marginal advantage in ap -
+pliances and groceries. Though small, these variations highlight 
+domain-specific trade-offs between ensemble configuration and perfor -
+mance. This motivates a deeper analysis of base-model contribution, 
+addressed in Section 4.3 through a novel SHAP-based model ranking 
+framework that identifies the most influential components of the 
+stacking architecture.
+4.2.2. Normalized confusion matrices
+The confusion matrices presented in this section compare the per -
+formance of two ensemble models: StackFull and StackSHAP. This 
+comparison serves as an ablation-style analysis and illustrates how 
+reducing the number of base models affects classification performance 
+across the three domains.
+Fig. 6 presents the normalized confusion matrices for the appliances 
+domain, comparing the ten-model StackFull ensemble with the 6-model 
+SHAP-guided StackSHAP. Both the ten-model StackFull and six-model 
+StackSHAP achieve excellent recall (0.94) for the majority class (class 
+2) and strong recall for class 0 (0.92). The majority weakness lies in class 
+1 detection, where recall is 0.69 for StackFull, offering only a negligible 
+advantage over StackSHAP ’ s 0.68. This persistent difficulty reflects the 
+intrinsic challenge posed by the imbalanced class distribution and con -
+firms that the streamlined StackSHAP maintains the strength and limi -
+tations of the full ensemble without compromising overall predictive 
+behaviour.
+Fig. 7 illustrates the normalized confusion matrices for the groceries 
+domain. As seen in this figure, both ensembles again achieve high recall 
+(0.93) on class 2 and solid recall on class 0 (0.9 vs 0.89). Class 1 remains 
+a weakness, with a recall of 0.67, and roughly 20% of its instances are 
+misclassified into class 1 for both models. This pattern closely mirrors 
+the appliances domain, indicating that class 1 difficulty is primarily 
+driven by the underlying data characteristics rather than by ensemble 
+size. In the clothing domain, class 2 recall remains consistently high 
+(0.92), with class 0 recall at 0.88 and 0.87 for the two ensembles. Class 1 
+recall is again low (0.68 vs. 0.69), with more than 18% of class 1 samples 
+misclassified as class 0. As in the other domains, StackSHAP's reduced 
+model set maintains performance comparable to StackFull, demon -
+strating that model pruning preserves overall behaviour without altering 
+the core challenge associated with minority class recognition.
+Fig. 8 summarizes the normalized confusion matrices for the clothing 
+domain. Across all three domains, the confusion matrices display a 
+consistent pattern: both ensemble variants achieve high recall on the 
+majority class (class 2) and strong recall on class 0, while class 1 remains 
+the most difficult category to classify reliably. This common weakness 
+remains largely unaffected by reducing the number of base models in the 
+Fig. 5. LazyPredict model benchmarking results across domains.
+Fig. 6. Appliances StackFull vs StackSHAP normalized confusion matrix.
+K. Mokgwatjane and T. Paepae                                                                                                                                                                                                              Machine Learning with Applications 23 (2026) 100825 
+9 
+
+===== PAGE 10 =====
+ensemble, highlighting an area for potential future improvement.
+The confusion matrices presented in this section compare the per -
+formance of two ensemble models: StackFull and StackSHAP. This 
+comparison serves as an ablation-style analysis and illustrates how 
+reducing the number of base models affects classification performance 
+across the three domains.
+Both the ten-model StackFull and six-model StackSHAP achieve 
+excellent recall (0.94) for the majority class (class 2) and strong recall 
+for class 0 (0.92). The majority weakness lies in class 1 detection, where 
+recall is 0.69 for StackFull, offering only a negligible advantage over 
+StackSHAP ’ s 0.68. This persistent difficulty reflects the intrinsic chal -
+lenge posed by the imbalanced class distribution and confirms that the 
+streamlined StackSHAP maintains the strength and limitations of the full 
+ensemble without compromising overall predictive behaviour.
+For groceries, both ensembles again achieve high recall (0.93) on 
+class 2 and solid recall on class 0 (0.9 vs 0.89). Class 1 remains a 
+weakness, with a recall of 0.67, and roughly 20 % of its instances are 
+misclassified into class 1 for both models. This pattern closely mirrors 
+the appliances domain, indicating that class 1 difficulty is primarily 
+driven by the underlying data characteristics rather than by ensemble 
+size. In the clothing domain, class 2 recall remains consistently high 
+(0.92), with class 0 recall at 0.88 and 0.87 for the two ensembles. Class 1 
+recall is again low (0.68 vs. 0.69), with more than 18 % of class 1 
+samples misclassified as class 0. As in the other domains, StackSHAP's 
+reduced model set maintains performance comparable to StackFull, 
+demonstrating that model pruning preserves overall behaviour without 
+altering the core challenge associated with minority class recognition.
+Across all three domains, the confusion matrices display a consistent 
+pattern: both ensemble variants achieve high recall on the majority class 
+(class 2) and strong recall on class 0, while class 1 remains the most 
+difficult category to classify reliably. This common weakness remains 
+largely unaffected by reducing the number of base models in the 
+ensemble, highlighting an area for potential future improvement.
+4.3. SHAP-Based ensemble base model ranking
+4.3.1. Global explainability
+To interpret the contributions of individual base models within the 
+stacking ensemble, SHAP values are computed on the meta-model fea -
+tures, representing the probability predictions of each base model. This 
+analysis enables a ranking of the base models according to their influ -
+ence on the ensemble ’ s final predictions. For clarity, the discussion 
+primarily focuses on the clothing domain, where selecting the top 
+contributing models yielded a noticeable improvement in StackSHAP ’ s 
+accuracy. This analysis provides insight into which classifiers drive 
+performance and guide the construction of a more efficient ensemble. 
+Fig. 9 presents a SHAP beeswarm plot for StackFull, highlighting the 
+most influential models across all predictions.
+The Figure consists of class-wise subplots, each corresponding to a 
+specific class (Negative, Neutral, Positive). Features represent the pre -
+dicted probabilities from the base models, displaying SHAP values to 
+indicate their overall contribution. Red points represent high probability 
+scores from the base models, while blue points indicate low scores. 
+Features appearing at the top of each plot are the most influential, 
+effectively providing a ranking of the base models' importance within 
+the ensemble. Points positioned to the right of the vertical axis 
+contribute positively to the target class, while points on the left 
+contribute negatively. Points near zero offer little to no contribution to 
+Fig. 7. Groceries StackFull vs StackSHAP normalized confusion matrix.
+Fig. 8. Clothing StackFull vs StackSHAP normalized confusion matrix.
+K. Mokgwatjane and T. Paepae                                                                                                                                                                                                              Machine Learning with Applications 23 (2026) 100825 
+10 
+
+===== PAGE 11 =====
+the ensemble predictively. Notably, the Bagging model consistently 
+dominates the ranking across all classes; for instance, Bagging_Prob_0 is 
+the top feature for class 0, where high values (red) strongly push the 
+prediction toward the negative class. Conversely, high values of Bag -
+ging_Prob_2 contribute positively to the positive class and negatively to 
+the negative and neutral classes. This visualization positions Bagging, 
+Extra Trees, and SGD amongst others as primary drivers of the ensem -
+ble's decision-making process. To summarize the overall contributions of 
+the base models across all classes, features were aggregated by base 
+model, and the mean absolute SHAP value was computed for each 
+model, as shown in Fig. 10 . This yielded a single importance score per 
+base model.
+The longer bars indicate base models that contribute largely to the 
+final stacking classifier ’ s decision-making, whereas the shorter bars 
+represent less influential models. These contributions can further be 
+aggregated by class, as illustrated by Fig. 11 .
+The vertical dashed line at 0.03 in Figs. 10 and 11 is the chosen 
+optimal models' contribution threshold. Based on this, the top six models 
+(Bagging, SGD, ET, LGBM, LSVC, and RF) were selected to form a 
+reduced SHAP-guided ensemble (StackSHAP). Selecting the top- 
+contributing models based on these SHAP scores led to slightly 
+improved stacking performance (weighted F1-score = 84.608) 
+compared to the full 10-model ensemble (weighted F1-score = 84.606), 
+while enhancing interpretability and reducing complexity. A similar 
+SHAP-based ranking was performed in the appliances and groceries 
+domains. However, reducing the ensemble to the top 6 base learners (as 
+per the 0.03 threshold) did not lead to performance gains, suggesting 
+that the stacking model benefited from the full diversity of its base 
+models in those domains. This highlights the domain sensitivity of 
+model explainability and performance trade-offs. It further indicates 
+that the models' contribution to ensemble performance is domain- 
+dependent. Given these marginal differences in performance, statisti -
+cal analysis is conducted to determine whether these variations are 
+significant. Section 4.5 (Statistical Validation) presents the results of 
+hypothesis testing to formally assess this.
+4.3.2. Local explainability
+The local interpretability is examined through SHAP waterfall plots, 
+which decompose individual predictions of the stacking model into 
+contributions from its base learners. These plots clarify how each model 
+influences a specific decision, offering instance-level transparency. An 
+example instance: " The dress fits as expected. Quality is okay, nothing 
+outstanding " is presented for the ensemble's local explanation. Fig. 12
+illustrates which base models contributed significantly to the ensemble 
+predicting this review as class 1.
+Fig. 12 (a) illustrates how each feature pushes predictions toward 
+class 0. Fig. 12 (b) and Fig. 12 (c) provide analogous information for 
+classes 1 and 2. E[f(x)] denotes the base value or average prediction 
+without the impact of the features. f(x) represents the final prediction 
+after all features have been considered. The red bars indicate features 
+that increase the probability (log-odds) of a given class, while the blue 
+bars indicate features that decrease the likelihood thereof. Each bar 
+corresponds to a SHAP value, representing the contribution of a feature 
+to the final prediction f(x) .
+For this analyzed instance, Fig. 12 (a) indicates a moderate contri -
+bution toward the negative class. Fig. 12 (b) decisively illustrates the 
+Fig. 9. Clothing domain: StackFull global model contributions.
+Fig. 10. Clothing domain: StackFull aggregated base model contributions.
+K. Mokgwatjane and T. Paepae                                                                                                                                                                                                              Machine Learning with Applications 23 (2026) 100825 
+11 
+
+===== PAGE 12 =====
+final classification, showing that strong positive contributions elevate 
+the probability score to the highest value. Fig. 12 (c) demonstrates sub -
+stantial suppression, where prominent negative SHAP values actively 
+push against a positive classification. Examining contributions per 
+feature, the Bagging model probabilities (Bagging_Prob_2) exhibited the 
+most significant impact across all classes, ultimately reinforcing the 
+neutral classification of the review.
+4.4. SHAP-Based feature interpretability
+To further enhance transparency, SHAP is applied to interpret 
+selected base models within the stacking ensembles. Explanations are 
+presented for the Bagging Classifier, the top-performing base model 
+given its significant contribution to the ensemble's predictive decision- 
+making. The remaining models (SGD, ET, LGBM, LSVC, and RF) 
+exhibit similar interpretability patterns to those presented and are 
+therefore not discussed in detail for brevity, as their inclusion would not 
+provide additional unique insights. The objective is to enhance model 
+transparency and understand how model features influence sentiment 
+predictions.
+4.4.1. Global explainability
+Feature 13 presents the SHAP beeswarm plot for the Bagging Clas -
+sifier, computed on a representative subset of 300 test instances due to 
+the substantial computational cost of generating SHAP values on TF-IDF 
+with a 100,000-feature vocabulary. This subset is sufficient to capture 
+the dominant feature contribution patterns and provide a reliable 
+approximation of the model's global behaviour.
+Based on Fig. 13 , the model learns distinct word associations for each 
+class. For class 0, strongly positive sentiment words such as " love", 
+"great", "comfortable", "nice", and " perfect" consistently reduce the likeli -
+hood of a negative sentiment prediction, while practical or transactional 
+Fig. 11. Clothing domain: StackFull base model contributions per class.
+Fig. 12. Clothing domain: StackFull local model contributions.
+Fig. 13. Clothing domain: Bagging model global feature contributions.
+K. Mokgwatjane and T. Paepae                                                                                                                                                                                                              Machine Learning with Applications 23 (2026) 100825 
+12 
+
+===== PAGE 13 =====
+terms like 'return' are among the few that contribute in favour of nega -
+tivity, often reflecting complaint contexts. For class 1, the presence of 
+positive sentiment words like "love", "perfect", and "great" pushes the 
+model away from neutrality, whereas descriptive or size-related words 
+such as 'small' increase the likelihood of a neutral label, highlighting that 
+neutrality is more associated with descriptive product-related language 
+than with emotions. For class 2, classic positive sentiment markers such 
+as " love", "great", "perfect" , and " nice" strongly drive the model toward 
+positive predictions, while terms like 'return' or 'small' can reduce posi -
+tivity. Overall, the Bagging model clearly distinguishes polarity by using 
+emotionally positive words to reinforce positivity and suppress nega -
+tivity or neutral predictions, while it relies on descriptive or trans -
+actional vocabulary to identify neutrality and on complaint-related 
+terms to capture negativity.
+4.4.2. Local explainability
+Fig. 14 illustrates the SHAP waterfall plot for a single lemmatized 
+review instance: " Really happy with this hoodie, super soft, warm, and fits 
+perfectly, " predicted as class 2 by the Bagging model. The 
+Figure illustrates how each feature contributed most significantly to the 
+model ’ s positive prediction.
+For class 0, positive words such as "soft", "warm", "perfectly", and 
+"happy" exert strong negative contributions, drastically reducing the 
+predicted likelihood of a negative sentiment. For class 1, negative scores 
+from emotional or absolute terms like "perfectly", "happy", and "super soft" 
+outweigh positive contributions from descriptive words like "soft", 
+resulting in the overall score being strongly below the neutral base 
+value. In contrast, for class 2, strong positive contributions from 
+"perfectly", "happy", "soft", and "warm" substantially increase the score, 
+driving the overall prediction decisively toward the positive class. The 
+class 2 predictive outcome occurs because the emotional and descriptive 
+terms in the review, particularly "perfectly", "happy", and "soft", 
+contribute overwhelmingly positively to class 2, reinforcing a favour -
+able sentiment and ensuring that the cumulative contributions lead to a 
+positive sentiment prediction.
+Fig. 15 provides instance-level explanations for the review: " The 
+jacket fits fine overall, though the material feels a little thinner than ex -
+pected, " highlighting the features that significantly influenced the 
+model's decision toward a neutral prediction.
+For class 0, neutral or affirmative terms such as "overall" and "fine" 
+exert a strong depressive effect, significantly mitigating the predicted 
+negative score. This mitigation is opposed by only flaw-related de -
+scriptors such as "material", although not sufficient to ensure negative 
+sentiment prediction. For class 1, the final classification is determined 
+by the predominant positive influence of comparative and hedging 
+terms ("thinner", "little", "expected"), which decisively raise the score 
+above the neutral base value. Conversely, for class 2, the is substantially 
+eroded by terms indicating discrepancy or perceived fault ("thinner", 
+"material"), overcoming the marginal affirmative pushes from terms like 
+"overall" and "fine." This outcome demonstrates that the model assigns 
+neutrality when positive and negative cues are balanced, with compar -
+ative product attributes acting as the salient features for class 1 
+prediction.
+Fig. 16 presents explanations of the review: " Terrible fabric quality on 
+this t-shirt. It shrunk and faded after a single wash, " delineating the 
+contribution of each feature in steering the model's prediction towards a 
+negative prediction.
+The prediction is highly driven by the overwhelming positive influ -
+ence of failure or product material descriptors such as "terrible, " 
+"shrunk," and "fabric," which elevate the score far above the negative 
+base value. For class 1, the fault terms ("terrible", "faded") exert a strong 
+negative effect, pushing the score substantially below the neutral base 
+value. Similarly, for class 2, the fault or product material quality de -
+scriptors ("terrible," "shrunk," "fabric quality") significantly suppress the 
+likelihood of a positive sentiment prediction in favour of the negative 
+class. This analysis underscores the model's ability to assign negative 
+sentiment based on the additive effect of explicit flaw-related vocabu -
+lary, which simultaneously elevates the class 0 probability and maxi -
+mally suppresses the probability of the other two classes.
+The local SHAP explanations presented demonstrate that the model 
+classifies reviews by leveraging the most influential and task-relevant 
+words, capturing key sentiment cues in the text. While the explain -
+ability analysis above focuses on the clothing domain, a similar process 
+was followed for the appliances and groceries domains. The overall 
+patterns were mostly similar, but the impact of certain features differed 
+across domains due to differences in vocabulary and contextualized 
+review language.
+4.5. Statistical validation
+To ensure that the performance differences reported in Section 4.2
+(Performance Comparison) and 4.3 (SHAP-Based Ensemble Base Model 
+Ranking) were not due to random variation, statistical significance 
+testing was conducted on three comparisons: StackFull vs. its base 
+models, StackSHAP vs. its base models, and StackFull vs. the reduced 
+SHAP-guided ensemble (StackSHAP). McNemar ’ s test (from Statsmodels 
+v0.14.5 ), a non-parametric method for paired nominal data, was chosen. 
+Originally introduced by McNemar in 1947, the test evaluates whether 
+the marginal frequencies of two outcomes are equal ( Mukhtar et al., 
+2017 ). In ML, it is commonly used to assess whether classifiers produce 
+significantly different predictions on the same instances, focusing on 
+disagreement cases ( Hasan et al., 2024 ). This approach is appropriate 
+because all our models were evaluated on an identical held-out test set 
+across the three domains.
+The hypothesis framework applied across all comparisons is as 
+follows: 
+Fig. 14. Clothing domain: Bagging model local feature contributions for class 2.
+K. Mokgwatjane and T. Paepae                                                                                                                                                                                                              Machine Learning with Applications 23 (2026) 100825 
+13 
+
+===== PAGE 14 =====
+• Null hypothesis ( H
+0
+): There is no statistically significant difference in 
+classification performance between the two models being compared. 
+Any observed difference is due to random chance.
+• Alternative hypothesis ( H
+1
+): There is a statistically significant dif -
+ference in classification performance between the two models.
+The significance threshold is set at p = 0.05, as indicated by the 
+dashed line in all p-value figures.
+4.5.1. StackFull vs base models
+This comparison evaluates whether StackFull delivers statistically 
+significant improvements in classification performance over its base 
+models across all domains.
+Fig. 17 presents p-values for each base model against StackFull in 
+each domain. In the appliances, all the base models had p < 0.05, 
+leading to rejection of H
+0 
+across board and supporting H
+1
+. Similarly, in 
+groceries, all ten base models showed p < 0.05, resulting in rejection of 
+H
+0 
+across the board. In clothing, nine base models had p < 0.05, sup -
+porting H
+1
+, with LR ( p = 0.053) failing to reject H
+0
+.
+These statistical results indicate that StackFull delivers consistent 
+and statistically significant performance gains over the base models, 
+particularly in the appliances and groceries domains, where improve -
+ments are uniform across all comparisons. In clothing, StackFull still 
+outperforms the majority of base models, though LR narrows the per -
+formance gap to the point where the difference is not statistically sig -
+nificant. Generalizing across domains, these findings support the claim 
+that the full stacking ensemble is a robust approach that leverages the 
+strength of diverse base models to achieve higher classification accu -
+racy. In contrast, the non-significant case suggests that in the clothing 
+domain, strong individual base models may already capture much of the 
+Fig. 15. Clothing domain: Bagging model local feature contributions for class 1.
+Fig. 16. Clothing domain: Bagging model local feature contributions for class 0.
+Fig. 17. StackFull vs base models: p-values across domains.
+K. Mokgwatjane and T. Paepae                                                                                                                                                                                                              Machine Learning with Applications 23 (2026) 100825 
+14 
+
+===== PAGE 15 =====
+predictive signal, limiting the measurable benefit of stacking.
+4.5.2. StackSHAP vs base models
+This analysis examines whether StackSHAP offers statistically sig -
+nificant improvements in classification performance over its constituent 
+models across the domains.
+Fig. 18 displays p-values for these comparisons. In appliances, all 
+base classifiers have p < 0.001, indicating significant improvement of 
+StackSHAP. In each domain, StackSHAP demonstrates statistically sig -
+nificant improvements over all considered base models ( p < 0.05), 
+supporting H
+1 
+and confirming the ensemble's superior performance.
+The results demonstrate that StackSHAP consistently outperforms all 
+of its selected base models across all domains. This indicates that the 
+ensemble effectively leverages the predictive strength of its components. 
+The findings highlight that the SHAP-guided base models selection 
+produces a streamlined ensemble with stronger performance and 
+improved interpretability compared to StackFull.
+4.5.3. StackFull vs stackshap ensembles
+Reducing the ensemble ’ s base models based on SHAP values yielded 
+slight increases or decreases in the ensemble model ’ s accuracy. This 
+comparison assesses whether reducing the number of base models in the 
+ensemble, guided by SHAP value rankings, results in a statistically sig -
+nificant change in classification performance.
+Fig. 19 shows p-values for each domain. In appliances ( p = 0.652), 
+groceries ( p = 0.353), and clothing ( p = 0.681), all p-values exceed the 
+0.05 threshold, meaning H
+0 
+cannot be rejected in any domain. This in -
+dicates that the performance differences between StackFull and Stack -
+SHAP are not statistically significant. Practically, StackSHAP maintains 
+comparable performance to the full ensemble. This confirms that SHAP- 
+guided base model selection simplifies the ensemble and enhances 
+interpretability without sacrificing performance across all domains.
+5. Discussion
+In this section, we are examining the practical implications of the 
+experimental results, focusing on how model robustness and interpret -
+ability influence decision-making in real business contexts, financial and 
+operational risks associated with model errors. Technical preprocessing 
+details are minimized to focus on actionable insights relevant to industry 
+and applied research contexts.
+5.1. Managerial and financial implications of domain-specific ensembles
+Across appliances, groceries, and clothing, the proposed stacking 
+ensembles consistently delivered strong performance, particularly in 
+macro F1 and G-Mean, highlighting their superior ability to recognize 
+minority classes, while the transformer-based ALBERT model achieved 
+higher weighted F1, MCC, and Kappa scores, reflecting overall predic -
+tive strength. Among the models, Extra Trees notably excelled in G- 
+Mean, supporting balanced class recognition. The SHAP-guided Stack -
+SHAP maintained performance comparable to StackFull with fewer base 
+models, confirming that ensemble simplification does not compromise 
+accuracy. These results demonstrate that the framework generalizes 
+effectively across domains with varying linguistic patterns and data 
+distributions. From a managerial perspective, such robust, domain- 
+specific ensembles can reduce modeling costs by providing a single 
+adaptive pipeline, while high minority-class sensitivity enables early 
+detection or neutral or negative customer feedback, supporting proac -
+tive interventions for reputational risk management and informed 
+decision-making, consistent with financial literature linking sentiment 
+analysis to market behaviour ( Deveikyte et al., 2022 ).
+5.2. Translating interpretability into managerial action
+The explainability component of the framework provides direct 
+managerial value by transforming model outputs into actionable in -
+sights across domains. By combining transparent learners such as Lo -
+gistic Regression with SHAP-based interpretations for more complex 
+models like XGBoost, the approach balances accuracy with interpretive 
+depth, enabling both local and global understanding of sentiment 
+drivers. At the instance level, SHAP highlights the specific terms that 
+influence predictions, guiding product teams toward issues such as 
+"leaks" in appliances or "shrinks" in clothing, informing design and 
+supplier decisions, and supporting pricing or promotional adjustments 
+when sentiment clusters around terms like "expensive." At the global 
+level, SHAP aggregates feature and model importance to reveal consis -
+tent predictors of sentiment, allowing analysts to track emerging con -
+sumer concerns and prioritize interventions across supply chain 
+management, marketing, and product improvements. In line with ( Bhatt 
+et al., 2020 ), this interpretability ensures that sentiment insights remain 
+transparent, auditable, and closely aligned with strategic business 
+objectives.
+5.3. Explainability trade-offs in ensemble architectures
+The findings reveal clear trade-offs between predictive strength and 
+interpretability within the ensemble designs. Although StackFull often 
+achieves the highest marginal performance, its heterogeneous and more 
+complex architecture reduces transparency and complicates practical 
+deployment. StackSHAP, by contrast, delivers a more streamlined 
+configuration that retains most of StackFull's accuracy while offering 
+substantially better interpretability and computational efficiency. These 
+results emphasize that model selection should reflect the requirements 
+of the operational setting, as marginal gains in predictive power may not 
+justify reduced explainability or increased maintenance demands, 
+Fig. 18. StackSHAP vs base models: p-values across domains.
+K. Mokgwatjane and T. Paepae                                                                                                                                                                                                              Machine Learning with Applications 23 (2026) 100825 
+15 
+
+===== PAGE 16 =====
+particularly in business environments where transparency and action -
+able insights are crucial.
+5.4. Error analysis: The economic cost of misclassification and class 
+imbalance
+The error patterns across all domains show that class imbalance re -
+mains the primary limitation of the framework, with minority (neutral) 
+instances frequently misclassified despite strong overall performance. 
+This is reflected in the G-Mean values, which indicate reduced sensi -
+tivity to the minority class and highlight that statistical imbalance 
+translates into meaningful managerial and economic risks. In practice, 
+misclassifying neutral reviews, often early indicators of dissatisfaction 
+or churn, carries substantially higher cost than small deviations among 
+positive cases, underscoring the need for improved treatment of these 
+economically sensitive errors. While preserving data authenticity was 
+methodologically justified, the results suggest that more targeted stra -
+tegies may be required to strengthen the minority class detection and 
+ensure that sentiment signals used for managerial decision-making 
+remain comprehensive and reliable.
+6. Conclusion and future work
+6.1. Summary of contributions
+This study proposes an explainable stacking-based ensemble frame -
+work for multi-domain, multiclass sentiment analysis on Amazon 
+product reviews. Across appliances, groceries, and clothing, the en -
+sembles consistently outperformed individual base learners on key class- 
+sensitive metrics (weighted and macro F1, MCC, and Kappa scores), 
+while the transformer benchmark ALBERT achieves the highest 
+weighted F1, MCC, and Kappa scores overall. Importantly, the proposed 
+ensembles yield superior macro F1 and G-Mean relative to ALBERT, 
+indicating better minority-class recognition, and Extra Trees stands out 
+among base models for G-Mean. A central contribution is the SHAP- 
+based model-ranking mechanism, which identifies the most contribu -
+tive base learners and enables a streamlined, more interpretable 
+ensemble without sacrificing performance; combining global and local 
+SHAP analysis with stacking enhances transparency in architectures 
+often treated as black boxes.
+6.2. Implications and applications
+The findings offer practical implications for e-commerce platforms, 
+manufacturers, and product managers seeking reliable sentiment- 
+derived insights. Model outputs can be applied in review summariza -
+tion, product quality monitoring, and personalized recommendation 
+systems, where trustworthy sentiment predictions are essential. SHAP- 
+based explanations further increase stakeholder confidence by clari -
+fying the rationale behind sentiment assignments and helping detect 
+domain-specific sentiment variations, while ensuring that the neutral 
+class is not systematically overlooked.
+6.3. Future work
+Future work can extend this study in several directions. Moving from 
+three-class sentiment to a fine-grained five-class formulation aligned 
+with star ratings would allow more nuanced distinctions between " very 
+poor" and " excellent " feedback. Incorporating stacked transformer-based 
+models and sentiment-aware approaches such as ABSA, together with 
+advanced topic modeling, could better capture product-specific con -
+cerns. Multimodal extensions integrating text with product images 
+would further reflect the complexity of real-world reviews. Low- 
+resource product categories remain a key challenge, where techniques 
+tailored to data scarcity may improve robustness. Finally, contrastive 
+explanations (e.g., what-if review edits) could enrich interpretability by 
+showing how small input changes affect predictions, offering actionable 
+insights for manufacturers.
+Author contributions
+Conceptualization, Kamogelo Mokgwatjane (KM); methodology, 
+KM; validation, KM, Thulane Paepae (TP); formal analysis, KM; inves -
+tigation, KM; data curation, KM; writing — original draft preparation, 
+KM; writing — review and editing, TP; supervision, TP.
+Declaration of competing interest
+The authors declare that they have no known competing financial 
+interests or personal relationships that could have appeared to influence 
+the work reported in this paper.
+Data availability
+Data will be made available on request.
+References
+Arnav, A., Pareek, V., & Jain, T. (2024). Sentiment analysis on Amazon food reviews 
+using machine learning. In 2024 2nd World Conference on Communication & 
+Computing (WCONF) (pp. 1 – 6). IEEE . 
+Bacevicius, M., & Paulauskaite-Taraseviciene, A. (2023). Machine learning algorithms 
+for raw and unbalanced intrusion detection data in a multi-class classification 
+problem. Applied Sciences, 13 (12), 7328 .
+Bekkar, M., Djemaa, H. K., & Alitouche, T. A. (2013). Evaluation measures for models 
+assessment over imbalanced data sets. Journal of Information Engineering and 
+Applications, 3 (10) .
+Fig. 19. StackFull vs StackSHAP: p-values across domains.
+K. Mokgwatjane and T. Paepae                                                                                                                                                                                                              Machine Learning with Applications 23 (2026) 100825 
+16 
+
+===== PAGE 17 =====
+Bhatt, U., Andrus, M., Weller, A., & Xiang, A. (2020). Machine learning explainability for 
+external stakeholders. https://arxiv.org/abs/2007.05408 .
+Damirova, J. I. (2025). Sentiment analysis using machine learning methods on social media 
+[Doctoral dissertation] .
+Deng, J., Sun, J., Peng, W., Zhang, D., & Vyatkin, V. (2022). Imbalanced multiclass 
+classification with active learning in strip rolling process. Knowledge-Based Systems, 
+255, Article 109754 .
+Deveikyte, J., Geman, H., Piccari, C., & Provetti, A. (2022). A sentiment analysis 
+approach to the prediction of market volatility. Frontiers in Artificial Intelligence, 5, 
+Article 836809 .
+Dhammananda, J., Budi, I., & Santoso, A. B. (2023). Sentiment analysis and topic 
+modeling of e-grocery application reviews using Naive bayes and support vector 
+machine: a case study of Segari data review on the Google Play Store. In 2023 3rd 
+International Conference on Electronic and Electrical Engineering and Intelligent System 
+(ICE3IS) (pp. 13–18). IEEE . 
+Gaudreault, J.-G., & Branco, P. (2024). Empirical analysis of performance assessment for 
+imbalanced classification. Machine Learning, 113(8), 5533–5575 .
+Gupta, A., Rastogi, A., & Katal, A. (2021). A comparative study of Amazon product 
+reviews using sentiment analysis. In 2021 International Conference on Advances in 
+Computing, Communication, and Control (ICAC3) (pp. 1–6). IEEE . 
+Hasan, M., Ahmed, T., Islam, M. R., & Uddin, M. P. (2024). Leveraging textual 
+information for social media news categorization and sentiment analysis. Plos One, 
+19(7), Article e0307027 .
+Hashmi, E., & Yayilgan, S. Y. (2024). A robust hybrid approach with product context- 
+aware learning and explainable AI for sentiment analysis in Amazon user reviews. 
+Electronic Commerce Research, 1–33. https://doi.org/10.1007/s10660-024-09896-5. 
+Advance online publication.
+Hassanat, A. B., Tarawneh, A. S., Altarawneh, G. A., & Almuhaimeed, A. (2022). Stop 
+oversampling for class imbalance learning: A critical review. https://arxiv. 
+org/abs/2202.03579 .
+Hou, Y., Li, J., He, Z., Yan, A., Chen, X., & McAuley, J. (2024). Bridging language and 
+items for retrieval and recommendation. https://arxiv.org/abs/2403.03952 .
+Li, S., Zhou, G., Wang, Z., Lee, S. Y. M., & Wang, R. (2011). Imbalanced sentiment 
+classification. In Proceedings of the 20th ACM International Conference on Information 
+and Knowledge Management (pp. 2469–2472). ACM . 
+Lin, X. (2020). Sentiment analysis of e-commerce customer reviews based on natural 
+language processing. In Proceedings of the ACM International Symposium on Big Data 
+and Artificial Intelligence (ISBDAI 2020) (pp. 1–5). ACM . 
+Liu, B. (2022). Sentiment analysis and opinion mining. Springer Nature . 
+Lundberg, S. M., & Lee, S.-I. (2017). A unified approach to interpreting model 
+predictions. Advances in neural information processing systems (p. 30) .
+Mahmud, F. A. M., Mullick, S., & Anas, T. C. M. (2023). Sentiment analysis of women's 
+clothing reviews on e-commerce platforms: A machine learning approach [Master's thesis]. 
+University of Liberal Arts Bangladesh . 
+Mara, D. A., Culda, L. C., Cristescu, M. P., NeriȘAnu, R. A., & Moldovan, R.-A (2025). 
+Exploring the efficacy and bias of sentiment analysis tools in customer reviews. 
+Journal of Social and Economic Statistics, 14(1), 19–40 .
+Maruthuperumal, P. N. D. S. (2025). Sentiment analysis of Amazon reviews using deep 
+learning and NLP methods. International Journal of Innovative Research in Science, 
+Engineering and Technology, 14(4), 8766–8771 .
+Mukhtar, N., Khan, M. A., & Chiragh, N. (2017). Effective use of evaluation measures for 
+the validation of best classifier in Urdu sentiment analysis. Cognitive Computation, 9 
+(4), 446–456 .
+Ngwenya, B., Paepae, T., & Bokoro, P. N. (2025a). Advancing SDG 6.3. 2 with machine 
+learning-based virtual sensors for high-frequency nutrient monitoring. Journal of 
+Water Process Engineering, 79, Article 108831 .
+Ngwenya, B., Paepae, T., & Bokoro, P. N. (2025b). Monitoring ambient water quality 
+using machine learning and IoT: A review and recommendations for advancing SDG 
+indicator 6.3. 2. Journal of Water Process Engineering, 73, Article 107664 .
+Nnanna-Ohuonu, O. (2025). The role of artificial intelligence in personalizing customer 
+experience in Nigeria’s online grocery retail market. International Journal of 
+Management, Marketing and Sustainability Review, 1(2), 28–44 .
+Noor, A., & Islam, M. (2019). Sentiment analysis for women's e-commerce reviews using 
+machine learning algorithms. In 2019 10th International Conference on Computing, 
+Communication and Networking Technologies (ICCCNT) (pp. 1–6). IEEE . 
+Pang, B., & Lee, L. (2009). Opinion mining and sentiment analysis. Foundations and 
+Trends in Information Retrieval, 2(1–2), 1–135 .
+Paramartha, M. R., & Maharani, W. (2025). Emotion classification based on social media 
+text upload patterns using the ALBERT method. In 2025 International Conference on 
+Advancement in Data Science, E-learning and Information System (ICADEIS) (pp. 1–6). 
+IEEE . 
+Radovilsky, Z., & Hegde, V. (2024). Analyzing consumer satisfaction of online grocery 
+retailing process using consumer reviews. Journal of Supply Chain and Operations 
+Management, 22(1), 1 .
+Rana, J., Gaur, L., & Santosh, K. C. (2022). Classifying customers’ journey from online 
+reviews of Amazon Fresh via sentiment analysis and topic modelling. In 2022 3rd 
+International Conference on Computation, Automation and Knowledge Management 
+(ICCAKM) (pp. 1–6). IEEE . 
+Rani, S., & Gill, N. S. (2020). Hybrid model for Twitter data sentiment analysis based on 
+ensemble of dictionary based classifier and stacked machine learning classifiers- 
+SVM, KNN and C50. Journal of Theoretical and Applied Information Technology, 98 
+(04), 624–635 .
+Ray, A., Dutta, S. K., Dey, S., Roy, T., Mukherjee, P., Bandyopadhyay, S., & Thakur, S. S. 
+(2024). Sentiment analysis of Amazon product reviews: A comprehensive evaluation 
+using Naïve Bayes classifiers. In International Conference on Computing and Machine 
+Learning (pp. 347–358). Springer Nature . 
+Salih, A. M., Raisi-Estabragh, Z., Galazzo, I. B., Radeva, P., Petersen, S. E., Lekadir, K., & 
+Menegaz, G. (2025). A perspective on explainable artificial intelligence methods: 
+SHAP and LIME. Advanced Intelligent Systems, 7(1), Article 2400304 .
+Sasongko, A. T., Ekhsan, M., Hadikristanto, W., & Nugroho, A. (2024). A comprehensive 
+evaluation of machine learning models for sentiment analysis in employee reviews. 
+In 2024 International Conference on Electrical Engineering and Computer Science 
+(ICECOS) (pp. 424–429). IEEE . 
+Shetty, A. M., Aljunid, M. F., & Manjaiah, D. H. (2024). Sentiment exploring on feedback 
+of e-commerce data using machine learning algorithms. In International Conference 
+on Emerging Research in Computing, Information, Communication and Applications (pp. 
+107–129). Springer Nature . 
+Slack, D., Hilgard, S., Jia, E., Singh, S., & Lakkaraju, H. (2020). Fooling LIME and SHAP: 
+Adversarial attacks on post hoc explanation methods. In Proceedings of the AAAI/ 
+ACM Conference on AI, Ethics, and Society (pp. 180–186) .
+Suhaeni, C., & Yong, H.-S. (2024). Enhancing imbalanced sentiment analysis: A GPT-3- 
+based sentence-by-sentence generation approach. Applied Sciences, 14(2), 622 .
+Tjoa, E., & Guan, C. (2020). A survey on explainable artificial intelligence (XAI): Toward 
+medical XAI. IEEE Transactions on Neural Networks and Learning Systems, 32(11), 
+4793–4813 .
+Usmani, S., & Shamsi, J. A. (2020). News headlines categorization scheme for unlabelled 
+data. In 2020 International Conference on Emerging Trends in Smart Technologies 
+(ICETST) (pp. 1–6). IEEE . 
+Wegier, W., & Ksieniewicz, P. (2020). Application of imbalanced data classification 
+quality metrics as weighting methods of the ensemble data stream classification 
+algorithms. Entropy, 22(8), 849 .
+Wolpert, D. H. (1992). Stacked generalization. Neural Networks, 5(2), 241–259 .
+Zhong, X., Gallagher, B., Liu, S., Kailkhura, B., Hiszpanski, A., & Han, T. Y.-J. (2022). 
+Explainable machine learning in materials science. Npj Computational Materials, 8(1), 
+204 .
+Zian, S., Kareem, S. A., & Varathan, K. D. (2021). An empirical evaluation of stacked 
+ensembles with different meta-learners in imbalanced classification. IEEE Access : 
+Practical Innovations, Open Solutions, 9, 87434–87452 .
+K. Mokgwatjane and T. Paepae                                                                                                                                                                                                              Machine Learning with Applications 23 (2026) 100825 
+17 
+

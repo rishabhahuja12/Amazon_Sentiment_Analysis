@@ -1,0 +1,301 @@
+# Paper Key Result/Method Lines
+
+- L20: neutral, negative) across three Amazon product domains: appliances, groceries, and clothing. The framework
+- L21: integrates diverse supervised classifiers in a stacking ensemble, with SHapley Additive exPlanations (SHAP)
+- L26: sensitive metrics (weighted/macro F1-score, Matthews Correlation Coefficient, Cohen ’ s Kappa, Geometric
+- L27: Mean), the ensemble surpasses individual classifiers and demonstrates higher macro F1 and G-Mean than the
+- L28: transformer-based ALBERT model, while ALBERT excels in weighted F1, MCC, and Cohen's Kappa. Extra Trees
+- L29: notably excelled in the G-Mean for minority classes. SHAP analysis uncovers domain-specific drivers and base
+- L47: (AI) solutions to efficiently process large datasets, categorize feedback,
+- L51: Processing (NLP), is widely used to interpret customer sentiments from
+- L53: into customer feedback analysis processes, manufacturers can perform
+- L88: powerful but noisy), (ii) groceries sentiment often revolves around taste,
+- L106: appliances, groceries, and clothing.
+- L107: 2. It incorporates explainable AI techniques, specifically SHapley Ad -
+- L108: ditive exPlanations (SHAP), not only to explain feature contributions
+- L111: knowledge, this is the first use of SHAP for an ensemble’s base
+- L118: state-of-the-art transformer model, A Light BERT (ALBERT), enabling a
+- L124: classifiers and the SHAP explanation framework. Section 4 outlines
+- L163: Radovilsky and Hegde (2024) explored grocery reviews from
+- L169: views on groceries using binary classification on large datasets (over
+- L173: processes to enhance predictive performance, robustness, and general -
+- L185: improve accuracy.
+- L189: XGBoost, LightGBM, and CatBoost, which offer high accuracy and
+- L190: speed through optimizations like parallel processing and histogram-
+- L199: These ensemble strategies enhance predictive accuracy and robust -
+- L201: bagging stabilizes predictions, boosting refines accuracy through itera -
+- L210: minimal optimization algorithm, which achieved a notable accuracy of
+- L213: accuracy of 91 % and an F1-score of 95 %, highlighting the robustness of
+- L216: achieving a high accuracy of 94 % and an F1-score of 91 %.
+- L221: of stability and reliability, diverging from standard metrics like accuracy
+- L222: and F1-score. Lin (2020) conducted a comparative study of RF, XGBoost,
+- L224: achieving an outstanding accuracy of 98 % and an F1-score of 97 %.
+- L229: highest performance with an accuracy and F1-score of 94 %. Across
+- L237: renders their decision-making processes opaque, posing challenges for
+- L240: across diverse domains such as appliances, groceries, or clothing, this
+- L248: models to achieve high accuracy (e.g., 98 % with LightGBM by Lin
+- L257: tions) and SHAP ( Slack et al., 2020 ). LIME explains individual pre -
+- L264: hand, SHAP leverages game theory to assign importance scores (Shapley
+- L266: prediction. Unlike LIME, SHAP provides both local (instance-specific)
+- L284: clothing, groceries, appliances, and electronics. The shift toward
+- L291: domains like appliances, groceries, and clothing exhibit distinct
+- L315: processes to ensure reliability and trust. While local explanation
+- L319: SHAP, which provide both local and global interpretability by
+- L328: application of SHAP in the context of a stacking ensemble for domain-
+- L330: SHAP to achieve two objectives: (1) to explain the contributions of in -
+- L336: across domains such as appliances, groceries, and clothing, and (2) to
+- L338: stacking ensemble. This dual application of SHAP addresses critical gaps
+- L346: prior study has applied SHAP to both feature-level and base model-level
+- L352: study, including data collection, preprocessing, modeling, performance
+- L357: including Appliances, Groceries & Gourmet Food, and Clothing, Shoes &
+- L364: 3.2. Preprocessing pipeline
+- L366: reviews. Data preprocessing is crucial for ensuring data quality and
+- L380: Further preprocessing included tokenization with Spacy en_cor -
+- L384: Fig. 1. Workflow of the proposed framework with stacking ensemble and SHAP explainability.
+- L442: Linux operating system, equipped with an Intel Core i5 processor, 32GB
+- L445: ( v2.2.3 ) for data manipulation and preprocessing, Matplotlib ( 3.10.0 )
+- L447: ( v2.1.4 ), and LightGBM ( v4.5.0 ) model training, and SHAP ( v0.47.2 ) for
+- L450: of ML models. This process was performed on a 20,000-record subset in
+- L452: cross-validation and model training. A fixed random seed of 42 was used
+- L457: 20 % for model training and testing. Five-fold cross-validation was
+- L463: tion accuracy. Stacking involves training diverse base learners on the
+- L471: cross-validation. This is crucial to prevent data leakage and ensure the
+- L503: natural imbalance ensures that the testing process reflects real-world
+- L507: incorporated a cost-sensitive learning approach, which adjusts
+- L513: measures such as accuracy may not adequately reflect performance on
+- L517: 3.6.1. Weighted F1-score
+- L518: This weighted harmonic mean of precision and recall offers a deeper
+- L519: understanding of a classifier ’ s performance than accuracy, making it
+- L523: performance ( Bekkar et al., 2013 ). Weighted F-measure is represented
+- L526: weighted
+- L545: 3.6.2. Macro F1-score
+- L549: Weighted macro F-measure is represented by Eq. (3) .
+- L551: macro
+- L561: 3.6.3. Matthews correlation coefficient (MCC) and Cohen's Kappa score
+- L562: MCC is regarded as a comprehensive metric, particularly effective for
+- L568: completeness, Cohen's Kappa has known limitations in handling
+- L572: chance. When comparing threshold-based metrics, MCC and Cohen's
+- L573: Kappa often produce similar outcomes; however, Kappa tends to show
+- L574: undesirable behaviour with imbalanced data, making MCC the preferred
+- L575: choice in such scenarios ( Gaudreault & Branco, 2024 ). MCC and Kappa
+- L577: N : Total number of classes (sum of all cells in the confusion matrix)
+- L618: MCC =
+- L658: 3.6.4. Geometric mean (G-Mean)
+- L663: sults in a low G-Mean, even if the majority class is classified correctly
+- L677: 3.6.5. Confusion matrix
+- L680: tives for each class. This study uses the normalized confusion matrix,
+- L685: confusion matrix is an effective technique for summarizing the perfor -
+- L690: accuracy are often more difficult to explain. Thus, the lack of explain -
+- L698: sentiment prediction, foster trust, and support actionable insights. SHAP
+- L701: calculating the contribution (Shapley value) of each feature (player) to
+- L703: Lundberg and Lee (2017) , SHAP values provide a unified measure of
+- L707: SHAP values are calculated, the formal mathematical definition is rep -
+- L740: SHAP analysis tells us which words were influential in driving a model ’ s
+- L745: models. By calculating SHAP values for these inputs, we can quantify the
+- L750: stacking ensembles. Central to the evaluation is SHAP-based ranking of
+- L757: Model Weighted F1-
+- L759: Macro F1-
+- L761: MCC Kappa
+- L775: StackSHAP 87.627 66.370 0.640 0.637 0.637
+- L776: StackFull 87.650 66.533 0.641 0.638 0.639
+- L777: ALBERT 89.275 65.109 0.702 0.699 0.483
+- L796: atory analysis and initial model selection before cross-validation
+- L798: selected through this benchmarking process across the three domains,
+- L800: (full and SHAP-guided stacking variants).
+- L802: evaluated against ALBERT (version 1), a strong SOTA transformer-based
+- L803: model. ALBERT was developed by Google Research as a BERT variant to
+- L813: all base models and the two ensemble variants: StackFull, which in -
+- L814: cludes ten base models, and StackSHAP, a reduced ensemble selected
+- L815: based on SHAP values (further discussed in Section 4.3 ) comprising four
+- L816: base models for the appliances, six for groceries, and six for clothing
+- L818: cross-validation, the results presented reflect evaluation on the held-out
+- L820: StackFull and StackSHAP are the strongest performers among the
+- L821: traditional models, achieving the highest weighted F1-score (87.650 and
+- L822: 87.627, respectively) and demonstrating consistently strong MCC and
+- L823: Kappa values. Their high weighted F1-scores reflect robust overall pre -
+- L824: dictive accuracy, while the macro F1-scores indicate weaker perfor -
+- L826: lower macro F1-scores often signal difficulty in capturing
+- L828: the confusion matrix analysis in Section 4.2.2 . Among all models, AL -
+- L829: BERT achieves the best weighted F1-score (89.275) and the highest MCC
+- L830: (0.702) and Kappa score (0.699), confirming its strength as a SOTA
+- L831: transformer benchmark. However, its macro F1-score and G-Mean
+- L832: indicate less balanced sensitivity across classes compared to StackFull
+- L833: and StackSHAP. As noted in earlier empirical work, metrics such as MCC
+- L834: and Kappa serve as reliable indicators of prediction-ground truth con -
+- L837: competitive, ET records the highest G-Mean, suggesting a superior bal -
+- L839: higher G-Mean values reflect better minority-class recognition and
+- L842: In the groceries domain, StackFull achieves the strongest overall
+- L843: performance, posting the highest weighted F1-scores and macro F1-
+- L844: score, with StackSHAP close behind. This demonstrates the consistent
+- L846: nority classes. ALBERT further extends this lead in terms of agreement-
+- L847: based metrics, recording the highest MCC and Kappa scores, which
+- L849: being outperformed by StackFull and StackSHAP in macro F1-score and
+- L850: G-Mean. Among the traditional classifiers, LR, SGD, Bagging, and XGB
+- L851: appear as solid baselines, showing competitive weighted and macro F1-
+- L852: scores. LGBM delivers the highest G-Mean, indicating the most balanced
+- L854: ensembles or ALBERT on weighted F1-score and the agreement-centric
+- L856: Across the clothing domain, both StackFull and StackSHAP deliver
+- L857: the strongest overall performance, particularly StackSHAP, achieving
+- L858: the highest weighted and macro F1-scores, confirming the ensembles'
+- L860: ALBERT maintains the highest MCC and Kappa scores, which un -
+- L863: models, LR remains competitive, offering consistently strong weighted
+- L864: and macro F1-scores. ET attains the highest G-Mean, demonstrating the
+- L867: ensembles and ALBERT.
+- L868: Across all domains, StackFull and StackSHAP consistently outper -
+- L869: form the individual classifiers in overall performance (weighted F1) and
+- L870: reliability (MCC and Kappa score), with only negligible differences be -
+- L874: standalone models can achieve ( Wolpert, 1992 ). Macro F1 and G-Mean
+- L875: continue to reveal the same pattern observed in the confusion matrices:
+- L877: Comparison of model performance for the groceries domain.
+- L878: Model Weighted F1-
+- L880: Macro F1-
+- L882: MCC Kappa
+- L896: StackSHAP 86.082 67.439 0.648 0.646 0.639
+- L897: StackFull 86.200 67.695 0.649 0.647 0.645
+- L898: ALBERT 87.699 67.187 0.704 0.701 0.542
+- L901: Model Weighted F1-
+- L903: Macro F1-
+- L905: MCC Kappa
+- L919: StackFull 84.606 67.066 0.602 0.599 0.652
+- L920: StackSHAP 84.608 67.116 0.602 0.600 0.654
+- L921: ALBERT 85.815 65.665 0.643 0.640 0.546
+- L930: highest G-Mean, reflecting strong class-level balance. ALBERT provides
+- L932: agreement with true labels. StackSHAP performs slightly better in the
+- L933: clothing domain, whereas StackFull holds a marginal advantage in ap -
+- L934: pliances and groceries. Though small, these variations highlight
+- L937: addressed in Section 4.3 through a novel SHAP-based model ranking
+- L940: 4.2.2. Normalized confusion matrices
+- L941: The confusion matrices presented in this section compare the per -
+- L942: formance of two ensemble models: StackFull and StackSHAP. This
+- L946: Fig. 6 presents the normalized confusion matrices for the appliances
+- L947: domain, comparing the ten-model StackFull ensemble with the 6-model
+- L948: SHAP-guided StackSHAP. Both the ten-model StackFull and six-model
+- L949: StackSHAP achieve excellent recall (0.94) for the majority class (class
+- L951: 1 detection, where recall is 0.69 for StackFull, offering only a negligible
+- L952: advantage over StackSHAP ’ s 0.68. This persistent difficulty reflects the
+- L954: firms that the streamlined StackSHAP maintains the strength and limi -
+- L957: Fig. 7 illustrates the normalized confusion matrices for the groceries
+- L967: misclassified as class 0. As in the other domains, StackSHAP's reduced
+- L968: model set maintains performance comparable to StackFull, demon -
+- L971: Fig. 8 summarizes the normalized confusion matrices for the clothing
+- L972: domain. Across all three domains, the confusion matrices display a
+- L978: Fig. 6. Appliances StackFull vs StackSHAP normalized confusion matrix.
+- L984: The confusion matrices presented in this section compare the per -
+- L985: formance of two ensemble models: StackFull and StackSHAP. This
+- L989: Both the ten-model StackFull and six-model StackSHAP achieve
+- L992: recall is 0.69 for StackFull, offering only a negligible advantage over
+- L993: StackSHAP ’ s 0.68. This persistent difficulty reflects the intrinsic chal -
+- L995: streamlined StackSHAP maintains the strength and limitations of the full
+- L997: For groceries, both ensembles again achieve high recall (0.93) on
+- L1006: samples misclassified as class 0. As in the other domains, StackSHAP's
+- L1007: reduced model set maintains performance comparable to StackFull,
+- L1010: Across all three domains, the confusion matrices display a consistent
+- L1016: 4.3. SHAP-Based ensemble base model ranking
+- L1019: stacking ensemble, SHAP values are computed on the meta-model fea -
+- L1024: contributing models yielded a noticeable improvement in StackSHAP ’ s
+- L1025: accuracy. This analysis provides insight into which classifiers drive
+- L1027: Fig. 9 presents a SHAP beeswarm plot for StackFull, highlighting the
+- L1031: dicted probabilities from the base models, displaying SHAP values to
+- L1039: Fig. 7. Groceries StackFull vs StackSHAP normalized confusion matrix.
+- L1040: Fig. 8. Clothing StackFull vs StackSHAP normalized confusion matrix.
+- L1052: ble's decision-making process. To summarize the overall contributions of
+- L1054: model, and the mean absolute SHAP value was computed for each
+- L1061: The vertical dashed line at 0.03 in Figs. 10 and 11 is the chosen
+- L1062: optimal models' contribution threshold. Based on this, the top six models
+- L1064: reduced SHAP-guided ensemble (StackSHAP). Selecting the top-
+- L1065: contributing models based on these SHAP scores led to slightly
+- L1066: improved stacking performance (weighted F1-score = 84.608)
+- L1067: compared to the full 10-model ensemble (weighted F1-score = 84.606),
+- L1069: SHAP-based ranking was performed in the appliances and groceries
+- L1071: per the 0.03 threshold) did not lead to performance gains, suggesting
+- L1081: The local interpretability is examined through SHAP waterfall plots,
+- L1096: corresponds to a SHAP value, representing the contribution of a feature
+- L1100: Fig. 9. Clothing domain: StackFull global model contributions.
+- L1101: Fig. 10. Clothing domain: StackFull aggregated base model contributions.
+- L1108: stantial suppression, where prominent negative SHAP values actively
+- L1113: 4.4. SHAP-Based feature interpretability
+- L1114: To further enhance transparency, SHAP is applied to interpret
+- L1125: Feature 13 presents the SHAP beeswarm plot for the Bagging Clas -
+- L1127: the substantial computational cost of generating SHAP values on TF-IDF
+- L1135: Fig. 11. Clothing domain: StackFull base model contributions per class.
+- L1136: Fig. 12. Clothing domain: StackFull local model contributions.
+- L1157: Fig. 14 illustrates the SHAP waterfall plot for a single lemmatized
+- L1210: The local SHAP explanations presented demonstrate that the model
+- L1213: ability analysis above focuses on the clothing domain, a similar process
+- L1214: was followed for the appliances and groceries domains. The overall
+- L1220: (Performance Comparison) and 4.3 (SHAP-Based Ensemble Base Model
+- L1222: testing was conducted on three comparisons: StackFull vs. its base
+- L1223: models, StackSHAP vs. its base models, and StackFull vs. the reduced
+- L1224: SHAP-guided ensemble (StackSHAP). McNemar ’ s test (from Statsmodels
+- L1249: The significance threshold is set at p = 0.05, as indicated by the
+- L1251: 4.5.1. StackFull vs base models
+- L1252: This comparison evaluates whether StackFull delivers statistically
+- L1255: Fig. 17 presents p-values for each base model against StackFull in
+- L1256: each domain. In the appliances, all the base models had p < 0.05,
+- L1262: groceries, all ten base models showed p < 0.05, resulting in rejection of
+- L1265: across the board. In clothing, nine base models had p < 0.05, sup -
+- L1268: , with LR ( p = 0.053) failing to reject H
+- L1271: These statistical results indicate that StackFull delivers consistent
+- L1273: particularly in the appliances and groceries domains, where improve -
+- L1274: ments are uniform across all comparisons. In clothing, StackFull still
+- L1284: Fig. 17. StackFull vs base models: p-values across domains.
+- L1290: 4.5.2. StackSHAP vs base models
+- L1291: This analysis examines whether StackSHAP offers statistically sig -
+- L1295: base classifiers have p < 0.001, indicating significant improvement of
+- L1296: StackSHAP. In each domain, StackSHAP demonstrates statistically sig -
+- L1297: nificant improvements over all considered base models ( p < 0.05),
+- L1301: The results demonstrate that StackSHAP consistently outperforms all
+- L1304: The findings highlight that the SHAP-guided base models selection
+- L1306: improved interpretability compared to StackFull.
+- L1307: 4.5.3. StackFull vs stackshap ensembles
+- L1308: Reducing the ensemble ’ s base models based on SHAP values yielded
+- L1309: slight increases or decreases in the ensemble model ’ s accuracy. This
+- L1311: ensemble, guided by SHAP value rankings, results in a statistically sig -
+- L1313: Fig. 19 shows p-values for each domain. In appliances ( p = 0.652),
+- L1314: groceries ( p = 0.353), and clothing ( p = 0.681), all p-values exceed the
+- L1315: 0.05 threshold, meaning H
+- L1318: dicates that the performance differences between StackFull and Stack -
+- L1319: SHAP are not statistically significant. Practically, StackSHAP maintains
+- L1320: comparable performance to the full ensemble. This confirms that SHAP-
+- L1327: operational risks associated with model errors. Technical preprocessing
+- L1331: Across appliances, groceries, and clothing, the proposed stacking
+- L1333: macro F1 and G-Mean, highlighting their superior ability to recognize
+- L1334: minority classes, while the transformer-based ALBERT model achieved
+- L1335: higher weighted F1, MCC, and Kappa scores, reflecting overall predic -
+- L1337: Mean, supporting balanced class recognition. The SHAP-guided Stack -
+- L1338: SHAP maintained performance comparable to StackFull with fewer base
+- L1340: accuracy. These results demonstrate that the framework generalizes
+- L1353: gistic Regression with SHAP-based interpretations for more complex
+- L1354: models like XGBoost, the approach balances accuracy with interpretive
+- L1356: drivers. At the instance level, SHAP highlights the specific terms that
+- L1361: level, SHAP aggregates feature and model importance to reveal consis -
+- L1370: interpretability within the ensemble designs. Although StackFull often
+- L1373: deployment. StackSHAP, by contrast, delivers a more streamlined
+- L1374: configuration that retains most of StackFull's accuracy while offering
+- L1379: Fig. 18. StackSHAP vs base models: p-values across domains.
+- L1391: This is reflected in the G-Mean values, which indicate reduced sensi -
+- L1406: product reviews. Across appliances, groceries, and clothing, the en -
+- L1408: sensitive metrics (weighted and macro F1, MCC, and Kappa scores),
+- L1409: while the transformer benchmark ALBERT achieves the highest
+- L1410: weighted F1, MCC, and Kappa scores overall. Importantly, the proposed
+- L1411: ensembles yield superior macro F1 and G-Mean relative to ALBERT,
+- L1413: among base models for G-Mean. A central contribution is the SHAP-
+- L1417: SHAP analysis with stacking enhances transparency in architectures
+- L1424: systems, where trustworthy sentiment predictions are essential. SHAP-
+- L1464: Fig. 19. StackFull vs StackSHAP: p-values across domains.
+- L1474: classification with active learning in strip rolling process. Knowledge-Based Systems,
+- L1480: modeling of e-grocery application reviews using Naive bayes and support vector
+- L1502: classification. In Proceedings of the 20th ACM International Conference on Information
+- L1505: language processing. In Proceedings of the ACM International Symposium on Big Data
+- L1509: predictions. Advances in neural information processing systems (p. 30) .
+- L1524: Water Process Engineering, 79, Article 108831 .
+- L1527: indicator 6.3. 2. Journal of Water Process Engineering, 73, Article 107664 .
+- L1529: experience in Nigeria’s online grocery retail market. International Journal of
+- L1537: text upload patterns using the ALBERT method. In 2025 International Conference on
+- L1540: Radovilsky, Z., & Hegde, V. (2024). Analyzing consumer satisfaction of online grocery
+- L1541: retailing process using consumer reviews. Journal of Supply Chain and Operations
+- L1557: SHAP and LIME. Advanced Intelligent Systems, 7(1), Article 2400304 .
+- L1566: Slack, D., Hilgard, S., Jia, E., Singh, S., & Lakkaraju, H. (2020). Fooling LIME and SHAP:
+- L1567: Adversarial attacks on post hoc explanation methods. In Proceedings of the AAAI/
+
+TOTAL_MATCHED_LINES=297
