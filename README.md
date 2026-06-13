@@ -8,7 +8,7 @@ Machine learning sentiment analysis project with:
 ## Project Structure
 
 - `api/app.py` - Flask backend and web UI
-- `notebooks/Machine_Learning_Malai_Chaap_Final.ipynb` - End-to-end ML notebook
+- `notebooks/amazon_sentiment_analysis` - End-to-end ML notebook
 - `saved_models/` - Trained models and TF-IDF vectorizers
 - `docs/Notebook_Full_Explanation.md` - Detailed notebook explanation
 
@@ -39,7 +39,7 @@ Health check: http://localhost:5000/health
 ### 3. Run Notebook (optional)
 
 Open and run:
-- `notebooks/Machine_Learning_Malai_Chaap_Final.ipynb`
+- `notebooks/amazon_sentiment_analysisipynb`
 
 Model save/load paths are configured relative to notebook and API structure.
 
